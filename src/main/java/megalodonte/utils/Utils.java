@@ -75,12 +75,12 @@ public class Utils {
     }
 
     //TODO: REMOVER
-    private static void modifyStyles(Node node, String color, String fxField) {
+    private static void modifyStyles(Node node, String value, String fxField) {
         var current = node.getStyle();
         var updated = Utils.UpdateEspecificStyle(
                 current,
                 fxField,
-                color
+                value
         );
         node.setStyle(updated);
     }
