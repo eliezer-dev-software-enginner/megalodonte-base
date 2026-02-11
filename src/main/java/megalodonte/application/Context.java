@@ -37,7 +37,7 @@ public final class Context {
         stage.setScene(new Scene((Parent) view.render().getJavaFxNode(), width, height));
     }
 
-    /**
+/**
      * Usado internamente pelo Router
      * @param view
      * @param props
@@ -47,6 +47,9 @@ public final class Context {
             stage.setScene(new Scene((Parent) view.render().getJavaFxNode(), props.screenWidth(), props.screenHeight()));
         } else {
             stage.getScene().setRoot((Parent) view.render().getJavaFxNode());
+            // Atualiza as dimensões do Stage existente
+            stage.setWidth(props.screenWidth());
+            stage.setHeight(props.screenHeight());
         }
 
         stage.setResizable(props.screenIsExpandable());
