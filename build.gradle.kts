@@ -32,6 +32,9 @@ javafx {
 }
 
 dependencies {
+    // Megalodonte ecosystem
+    // (megalodonte-reactivity é adicionado em runtime via reflexão)
+    
     // Dependências de teste (mantidas)
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
