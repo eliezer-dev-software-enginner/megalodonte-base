@@ -7,6 +7,15 @@ import java.util.function.Consumer;
 public final class MegalodonteApp {
 
     private static Runnable onShutdown;
+    private static Context currentContext;
+
+    public static Context getCurrentContext() {
+        return currentContext;
+    }
+
+    static void setCurrentContext(Context context) {
+        currentContext = context;
+    }
 
     public static void run(Consumer<Context> contextHandler) {
         Bootstrap.handler = contextHandler;

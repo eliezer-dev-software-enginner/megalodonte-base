@@ -10,6 +10,7 @@ public final class Bootstrap {
 
     public static void dispatch(Stage stage) {
         var context = new Context(stage);
+        MegalodonteApp.setCurrentContext(context);
 
         if (handler != null) {
             handler.accept(context);
