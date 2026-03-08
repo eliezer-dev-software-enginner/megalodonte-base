@@ -59,7 +59,7 @@ tasks.jar {
 
     manifest {
         attributes(
-            "Implementation-Title" to "Megalodonte Components Library",
+            "Implementation-Title" to "Megalodonte Base Library",
             "Implementation-Version" to project.version
         )
     }
@@ -74,3 +74,4 @@ publishing {
         }
     }
 }
+

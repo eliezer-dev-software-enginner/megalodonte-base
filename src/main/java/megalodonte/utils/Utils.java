@@ -6,6 +6,8 @@ import javafx.scene.paint.Color;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+
+@Deprecated(forRemoval = true, since = "08/03/2026")
 public class Utils {
     public static String FX_FONT_SIZE = "-fx-font-size";
 
