@@ -1,7 +1,8 @@
 package megalodonte.application;
 
-import megalodonte.base.ComponentInterface;
+import megalodonte.base.components.ComponentInterface;
 
+@Deprecated(forRemoval = true)
 public interface View {
     ComponentInterface<?> render();
 }

@@ -1,6 +1,4 @@
-package megalodonte.base;
-
-import megalodonte.base.route.ScreenContextInterface;
+package megalodonte.base.components;
 
 public interface ScreenComponent {
     Component render();

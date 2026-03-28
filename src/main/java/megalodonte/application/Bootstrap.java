@@ -16,8 +16,6 @@ public final class Bootstrap {
             handler.accept(context);
         }
 
-        if (context.shouldAutoShow() && !stage.isShowing()) {
-            stage.show();
-        }
+        stage.show();
     }
 }

@@ -1,4 +1,4 @@
-package megalodonte.base;
+package megalodonte.base.components;
 
 import javafx.animation.Animation;
 import javafx.scene.Node;

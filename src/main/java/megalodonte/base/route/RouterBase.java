@@ -1,4 +1,4 @@
-package megalodonte.base;
+package megalodonte.base.route;
 
 import megalodonte.application.Context;
 
