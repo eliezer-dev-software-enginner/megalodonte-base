@@ -1,6 +1,6 @@
-package megalodonte.application;
+package megalodonte.base;
 
-import megalodonte.base.Component;
+import megalodonte.base.route.ScreenContextInterface;
 
 public interface ScreenComponent {
     Component render();
@@ -8,4 +8,5 @@ public interface ScreenComponent {
     default void onMount() {
         // Implementação vazia - método opcional
     }
+
 }
