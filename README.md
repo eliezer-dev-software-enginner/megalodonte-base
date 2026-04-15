@@ -183,11 +183,17 @@ Router router = new Router(routes, "home");
 
 Route parameters are supported via `${param}` syntax.
 
-Navigate with `Redirect.to()`:
+Use `context.getRouter().navigateTo()` to navigate between screens:
 
 ```java
-Redirect.to("settings");
-Redirect.to("product/123");
+context.getRouter().navigateTo("settings");
+context.getRouter().navigateTo("product/123");
+```
+
+Use `Redirect.to()` to open a URL in the user's browser:
+
+```java
+Redirect.to("https://github.com");
 ```
 
 ---
