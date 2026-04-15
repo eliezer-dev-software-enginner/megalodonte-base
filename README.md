@@ -1,28 +1,26 @@
-# Simple Clipboard
+# Megalodonte Base
 
-Uma biblioteca Java simples e leve para manipulação de **Clipboard (área de transferência)** usando **JavaFX**, com foco em **arquitetura limpa**, **testabilidade** e **facilidade de uso**.
-
----
-
-## ✨ Objetivo
-
-O objetivo do **simple-clipboard** é fornecer uma API mínima e confiável para:
-- Copiar texto para o clipboard
-- Ler texto do clipboard
-
-Tudo isso sem expor detalhes internos do JavaFX para quem consome a biblioteca.
+A lightweight JavaFX framework for building desktop applications with a **React-inspired architecture**, featuring routing, theming, components, and async utilities.
 
 ---
 
-## 📦 Instalação (Maven Local)
+## Features
 
-Após publicar a lib localmente:
+- **Routing System** - Simple navigation between screens
+- **Theme System** - Customizable colors, typography, spacing, borders, and radius
+- **Component Architecture** - React-inspired component model
+- **Async Utilities** - Easy async operations
+- **Bootstrap Lifecycle** - Clean application startup
+
+---
+
+## Installation (Maven Local)
 
 ```bash
 ./gradlew publishToMavenLocal
 ```
 
-Adicione ao seu projeto:
+Add to your project:
 
 ```gradle
 repositories {
@@ -31,103 +29,260 @@ repositories {
 }
 
 dependencies {
-    implementation("megalodonte:simple-clipboard:1.0.0")
+    implementation("megalodonte:megalodonte-base:1.0.0-beta")
 }
 ```
 
 ---
 
-## 🚀 Uso Básico
+## Quick Start
 
 ```java
-import megalodonte.Clipboard;
+import megalodonte.application.MegalodonteApp;
+import megalodonte.application.Context;
+import megalodonte.router.v4.Router;
 
-Clipboard.setString("Olá mundo");
+public class Main {
+    static boolean devMode = true;
 
-String texto = Clipboard.getString();
-System.out.println(texto);
+    public static void main(String[] args) {
+        MegalodonteApp.run(context -> {
+
+            context.javafxStage().setTitle("My App");
+            context.javafxStage().setWidth(900);
+            context.javafxStage().setHeight(650);
+
+            Router router = AppRouter.build();
+            context.useRouter(router);
+            context.useView(router.entrypoint().view());
+
+            MegalodonteApp.onShutdown(() -> {
+                System.out.println("Application closed");
+            });
+        });
+    }
+}
 ```
 
----
+## Real World Example
 
-## 🧠 Arquitetura
-
-A biblioteca segue o **Princípio da Inversão de Dependência (DIP)**:
-
-```
-Clipboard (API pública)
-   ↓
-ClipboardProvider (interface)
-   ↓
-FxClipboardProvider (implementação JavaFX)
-```
-
-Isso permite:
-- Testes unitários sem JavaFX
-- Uso de Mockito
-- Evolução futura (ex: outra implementação de clipboard)
-
----
-
-## 🧪 Testes
-
-Os testes são **100% unitários**, usando **JUnit 5 + Mockito**, sem dependência de:
-- JavaFX Thread
-- Sistema operacional
-- Ambiente gráfico
-
-Exemplo de teste:
+### Main.java
 
 ```java
-ClipboardProvider provider = mock(ClipboardProvider.class);
-Clipboard.setProvider(provider);
+import megalodonte.application.MegalodonteApp;
+import megalodonte.application.Context;
+import megalodonte.router.v4.Router;
+import my_app.AppRouter;
 
-Clipboard.setString("teste");
+public class Main {
+    static HotReload hotReload;
+    static boolean devMode = true;
 
-verify(provider).setString("teste");
+    public static void main(String[] args) {
+        MegalodonteApp.run(context -> {
+
+            var stage = context.javafxStage();
+            stage.setTitle("My App");
+            stage.setWidth(900);
+            stage.setHeight(650);
+
+            Router router = AppRouter.build();
+            context.useRouter(router);
+            context.useView(router.entrypoint().view());
+
+            if (devMode) {
+                hotReload = new HotReload()
+                        .sourcePath("src/main/java")
+                        .classesPath("build/classes/java/main")
+                        .screenClassName("my_app.screens.homescreen.HomeScreen")
+                        .reloadContext(context)
+                        .useRouter();
+                hotReload.start();
+            }
+
+            MegalodonteApp.onShutdown(() -> {
+                if (hotReload != null) hotReload.stop();
+            });
+        });
+    }
+}
+```
+
+### AppRouter.java
+
+```java
+import megalodonte.router.v4.Router;
+import megalodonte.router.v4.RouteProps;
+import my_app.screens.HomeScreen;
+import my_app.screens.SettingsScreen;
+import my_app.screens.ProductsScreen;
+
+public class AppRouter {
+    public static Router build() {
+        var routes = Set.of(
+            new Router.Route("home", ctx -> new HomeScreen(ctx),
+                new RouteProps(900, 550, null, false)),
+
+            new Router.Route("settings", ctx -> new SettingsScreen(ctx),
+                new RouteProps(900, 550, "Settings", true)),
+
+            new Router.Route("products", ctx -> new ProductsScreen(ctx),
+                new RouteProps(900, 550, "Products", true)),
+
+            new Router.Route("product/${id}", ctx -> new ProductDetails(ctx),
+                new RouteProps(900, 550, "Product Details", true))
+        );
+
+        return new Router(routes, "home");
+    }
+}
 ```
 
 ---
 
-## 🔧 Tecnologias
+## Architecture
 
-- Java 21 (LTS)
+```
+megalodonte.application/
+    ├── MegalodonteApp    # Application entry point
+    ├── Context           # Application context
+    └── Bootstrap         # Initialization bootstrap
+
+megalodonte.router.v4/
+    ├── Router            # Route definitions
+    └── RouteProps        # Route properties (size, title, etc)
+
+megalodonte.base/
+    ├── theme/            # Theme configuration
+    ├── components/       # UI components
+    ├── async/            # Async utilities
+    ├── UI.java           # UI thread helpers
+    └── Redirect.java     # Navigation helper
+```
+
+---
+
+## Routing
+
+Define routes using `Router.Route` with `RouteProps`:
+
+```java
+var routes = Set.of(
+    new Router.Route("home", ctx -> new HomeScreen(ctx),
+        new RouteProps(900, 550, null, false)),
+
+    new Router.Route("settings", ctx -> new SettingsScreen(ctx),
+        new RouteProps(900, 550, "Settings", true)),
+
+    new Router.Route("product/${id}", ctx -> new ProductDetails(ctx),
+        new RouteProps(900, 550, "Product Details", true))
+);
+
+Router router = new Router(routes, "home");
+```
+
+Route parameters are supported via `${param}` syntax.
+
+Navigate with `Redirect.to()`:
+
+```java
+Redirect.to("settings");
+Redirect.to("product/123");
+```
+
+---
+
+## Theming
+
+Create a custom theme by implementing `Theme`:
+
+```java
+public class MyTheme implements Theme {
+    @Override
+    public ThemeColors colors() {
+        return new ThemeColors() {
+            // Define your color palette
+        };
+    }
+
+    @Override
+    public ThemeTypography typography() {
+        return new ThemeTypography() {
+            // Define typography styles
+        };
+    }
+
+    // ... spacing(), radius(), border()
+}
+```
+
+Apply the theme in your context:
+
+```java
+MegalodonteApp.run(ctx -> {
+    ctx.setTheme(new MyTheme());
+});
+```
+
+---
+
+## Async Operations
+
+```java
+Async.run(() -> {
+    // Background task
+    return fetchData();
+}, result -> {
+    // Callback on completion
+    UI.runOnUi(() -> {
+        // Update UI
+    });
+});
+```
+
+---
+
+## Technologies
+
+- Java 25
 - JavaFX 17
 - JUnit 5
 - Mockito
+- TestFX
 - Gradle
 
 ---
 
-## ⚠️ Observações Importantes
-
-- Java 25 **não é suportado** por Mockito/ByteBuddy no momento
-- Recomendado usar **Java 21 LTS**
-- A biblioteca é voltada para **texto**, não arquivos ou imagens
-
----
-
-## 📁 Estrutura do Projeto
+## Project Structure
 
 ```
 src/
  ├─ main/java/megalodonte/
- │   ├─ Clipboard.java
- │   ├─ ClipboardProvider.java
- │   └─ FxClipboardProvider.java
+ │   ├─ application/
+ │   │   ├── MegalodonteApp.java
+ │   │   ├── Context.java
+ │   │   ├── Bootstrap.java
+ │   │   └── JavaFXHost.java
+ │   ├─ base/
+ │   │   ├── theme/
+ │   │   │   ├── Theme.java
+ │   │   │   ├── ThemeColors.java
+ │   │   │   ├── ThemeTypography.java
+ │   │   │   ├── ThemeSpacing.java
+ │   │   │   ├── ThemeRadius.java
+ │   │   │   └── ThemeBorder.java
+ │   │   ├── components/
+ │   │   ├── async/
+ │   │   ├── UI.java
+ │   │   ├── Redirect.java
+ │   │   └── Utility.java
+ │   └─ utils/
  │
  └─ test/java/megalodonte/
-     └─ ClipboardTest.java
 ```
 
 ---
 
-## 📜 Licença
+## License
 
 MIT License
-
----
-
-## 👨‍💻 Autor
-
-Projeto desenvolvido por **Megalodonte**.# megalodonte-base
