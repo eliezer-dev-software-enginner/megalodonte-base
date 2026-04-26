@@ -2,11 +2,15 @@ package megalodonte.application;
 
 import javafx.application.Application;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public final class MegalodonteApp {
 
-    private static Runnable onShutdown;
+    public enum Event{
+        CloseRequest
+    }
+
     private static Context currentContext;
 
     public static Context getCurrentContext() {
@@ -15,6 +19,12 @@ public final class MegalodonteApp {
 
     static void setCurrentContext(Context context) {
         currentContext = context;
+    }
+
+    public static void run(Consumer<Context> contextHandler, Consumer<Event> onEvent) {
+        Bootstrap.handler = contextHandler;
+        Bootstrap.eventHandler = onEvent;
+        Application.launch(JavaFXHost.class);
     }
 
     public static void run(Consumer<Context> contextHandler) {
@@ -28,16 +38,6 @@ public final class MegalodonteApp {
     }
 
     public static void onShutdown(Runnable callback) {
-        onShutdown = callback;
-    }
-
-    static void triggerShutdown() {
-        if (onShutdown != null) {
-            try {
-                onShutdown.run();
-            } catch (Exception e) {
-                System.err.println("Erro no onShutdown: " + e.getMessage());
-            }
-        }
+        Bootstrap.closehandler = callback;
     }
 }
