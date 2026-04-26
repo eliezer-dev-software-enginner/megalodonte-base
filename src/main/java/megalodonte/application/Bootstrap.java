@@ -9,7 +9,6 @@ public final class Bootstrap {
     // Separá-los em dois consumers deixa o design mais claro e resolve o problema estruturalmente.
     public static Consumer<Context> handler;
     public static Consumer<MegalodonteApp.Event> eventHandler;
-    public static Runnable closehandler;
 
     public static void dispatch(Stage stage) {
         var context = new Context(stage);

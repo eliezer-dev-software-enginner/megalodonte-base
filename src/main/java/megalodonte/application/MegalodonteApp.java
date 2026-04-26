@@ -36,8 +36,4 @@ public final class MegalodonteApp {
         Bootstrap.handler = contextHandler;
         Application.launch(JavaFXHost.class, args);
     }
-
-    public static void onShutdown(Runnable callback) {
-        Bootstrap.closehandler = callback;
-    }
 }
