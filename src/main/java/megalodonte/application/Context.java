@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import megalodonte.base.components.ComponentInterface;
 import megalodonte.base.components.ScreenComponent;
+import megalodonte.base.route.RouteResult;
 import megalodonte.base.route.RouterBase;
 
 public final class Context {
@@ -36,6 +37,14 @@ public final class Context {
 
         //após o stage.show() do Bootstrap executar. O onMount vai rodar com o stage já visível e a Scene já anexada.
         Platform.runLater(component::onMount);
+    }
+
+    public void useView(RouteResult routeResult) {
+        var props = routeResult.props();
+        var parentLayout = (Parent) routeResult.view().getJavaFxNode();
+        stage.setResizable(props.screenIsExpandable());
+        stage.setScene(new Scene(parentLayout, props.screenWidth(), props.screenHeight()));
+        // onMount já foi chamado dentro do Router.resolveWithStage()
     }
 
     /**
