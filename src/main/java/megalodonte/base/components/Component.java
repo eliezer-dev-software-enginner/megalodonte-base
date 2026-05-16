@@ -76,4 +76,11 @@ public abstract class Component implements ComponentInterface<Component> {
         return this;
     }
 
+
+
+    @FunctionalInterface
+    public interface Transition {
+        Animation play(Component c, boolean entering);
+    }
+
 }
