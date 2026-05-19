@@ -44,6 +44,7 @@ public final class Context {
         var parentLayout = (Parent) routeResult.view().getJavaFxNode();
         stage.setResizable(props.screenIsExpandable());
         stage.setScene(new Scene(parentLayout, props.screenWidth(), props.screenHeight()));
+        stage.setTitle(routeResult.props().name());
         // onMount já foi chamado dentro do Router.resolveWithStage()
     }
 
