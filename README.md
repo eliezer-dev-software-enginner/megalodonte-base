@@ -229,12 +229,10 @@ public class MyTheme implements ThemeInterface {
 }
 ```
 
-Apply the theme via context:
+Apply the theme via ThemeManager (from megalodonte-theme):
 
 ```java
-MegalodonteApp.run(ctx -> {
-    ctx.setTheme(new MyTheme());
-});
+ThemeManager.setTheme(new MyTheme());
 ```
 
 ---
