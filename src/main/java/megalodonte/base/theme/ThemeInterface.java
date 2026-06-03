@@ -11,8 +11,8 @@ package megalodonte.base.theme;
  *     public ThemeBorder border() { return new ThemeBorder(...); }
  * }
  *
- * // Apply it via Context (from megalodonte-base):
- * ctx.useTheme(new MyTheme());
+ * // Apply it via ThemeManager (from megalodonte-theme):
+ * ThemeManager.setTheme(new MyTheme());
  * }</pre>
  */
 public interface ThemeInterface {
