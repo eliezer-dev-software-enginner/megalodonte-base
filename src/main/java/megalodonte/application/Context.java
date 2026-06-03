@@ -3,6 +3,7 @@ package megalodonte.application;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import megalodonte.base.components.ComponentInterface;
 import megalodonte.base.components.ScreenComponent;
@@ -46,6 +47,9 @@ public final class Context {
         stage.setResizable(props.screenIsExpandable());
         stage.setScene(new Scene(parentLayout, props.screenWidth(), props.screenHeight()));
         stage.setTitle(routeResult.props().name());
+        if (props.iconPath() != null && !props.iconPath().isEmpty()) {
+            stage.getIcons().add(new Image(props.iconPath()));
+        }
         // onMount já foi chamado dentro do Router.resolveWithStage()
     }
 
