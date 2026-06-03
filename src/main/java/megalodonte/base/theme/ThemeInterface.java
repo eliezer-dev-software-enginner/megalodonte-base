@@ -11,8 +11,8 @@ package megalodonte.base.theme;
  *     public ThemeBorder border() { return new ThemeBorder(...); }
  * }
  *
- * // Apply it:
- * ThemeInterface.useTheme(new MyTheme());
+ * // Apply it via Context (from megalodonte-base):
+ * ctx.useTheme(new MyTheme());
  * }</pre>
  */
 public interface ThemeInterface {
@@ -20,9 +20,4 @@ public interface ThemeInterface {
     ThemeTypography typography();
     ThemeSpacing spacing();
     ThemeBorder border();
-
-    /** Apply a theme. Delegates to the active theme manager (e.g. megalodonte-theme). */
-    static void useTheme(ThemeInterface theme) {
-        ThemeHolder.apply(theme);
-    }
 }

@@ -8,6 +8,8 @@ import megalodonte.base.components.ComponentInterface;
 import megalodonte.base.components.ScreenComponent;
 import megalodonte.base.route.RouteResult;
 import megalodonte.base.route.RouterBase;
+import megalodonte.base.theme.ThemeHolder;
+import megalodonte.base.theme.ThemeInterface;
 
 public final class Context {
 
@@ -60,5 +62,9 @@ public final class Context {
     public RouterBase useRouter(RouterBase router) {
         router.bind(this);
         return router;
+    }
+
+    public void useTheme(ThemeInterface theme) {
+        ThemeHolder.apply(theme);
     }
 }
