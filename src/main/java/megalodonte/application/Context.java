@@ -58,8 +58,20 @@ public final class Context {
         stage.setScene(new Scene((Parent) component.getJavaFxNode(), width, height));
     }
 
-    public RouterBase useRouter(RouterBase router) {
+    public RouterBuilder useRouter(RouterBase router) {
         router.bind(this);
-        return router;
+        return new RouterBuilder(router);
+    }
+
+    public final class RouterBuilder {
+        private final RouterBase router;
+
+        RouterBuilder(RouterBase router) {
+            this.router = router;
+        }
+
+        public void start() {
+            useView(router.entrypoint());
+        }
     }
 }

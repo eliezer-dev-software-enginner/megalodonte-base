@@ -52,9 +52,7 @@ public class Main {
             context.javafxStage().setWidth(900);
             context.javafxStage().setHeight(650);
 
-            Router router = AppRouter.build();
-            context.useRouter(router);
-            context.useView(router.entrypoint().view());
+            context.useRouter(AppRouter.build()).start();
 
             MegalodonteApp.onShutdown(() -> {
                 System.out.println("Application closed");
@@ -86,9 +84,7 @@ public class Main {
             stage.setWidth(900);
             stage.setHeight(650);
 
-            Router router = AppRouter.build();
-            context.useRouter(router);
-            context.useView(router.entrypoint().view());
+            context.useRouter(AppRouter.build()).start();
 
             if (devMode) {
                 hotReload = new HotReload()
