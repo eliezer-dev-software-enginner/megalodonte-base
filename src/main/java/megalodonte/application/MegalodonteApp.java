@@ -21,6 +21,11 @@ public final class MegalodonteApp {
         currentContext = context;
     }
 
+    // Nova API: define o nome da aplicação antes do launch
+    public static void appName(String name) {
+        Bootstrap.appName = name;
+    }
+
     public static void run(Consumer<Context> contextHandler, Consumer<Event> onEvent) {
         Bootstrap.handler = contextHandler;
         Bootstrap.eventHandler = onEvent;
