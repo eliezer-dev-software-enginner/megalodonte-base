@@ -52,9 +52,7 @@ public class Main {
             context.javafxStage().setWidth(900);
             context.javafxStage().setHeight(650);
 
-            Router router = AppRouter.build();
-            context.useRouter(router);
-            context.useView(router.entrypoint().view());
+            context.useRouter(AppRouter.build()).start();
 
             MegalodonteApp.onShutdown(() -> {
                 System.out.println("Application closed");
@@ -86,9 +84,7 @@ public class Main {
             stage.setWidth(900);
             stage.setHeight(650);
 
-            Router router = AppRouter.build();
-            context.useRouter(router);
-            context.useView(router.entrypoint().view());
+            context.useRouter(AppRouter.build()).start();
 
             if (devMode) {
                 hotReload = new HotReload()
@@ -153,7 +149,7 @@ megalodonte.router.v4/
     └── RouteProps        # Route properties (size, title, etc)
 
 megalodonte.base/
-    ├── theme/            # Theme configuration
+    ├── theme/            # Theme configuration (ThemeInterface, ThemeColors, ThemeTypography, ThemeSpacing, ThemeBorder)
     ├── components/       # UI components
     ├── async/            # Async utilities
     ├── UI.java           # UI thread helpers
@@ -200,34 +196,39 @@ Redirect.to("https://github.com");
 
 ## Theming
 
-Create a custom theme by implementing `Theme`:
+Create a custom theme by implementing `ThemeInterface`:
 
 ```java
-public class MyTheme implements Theme {
+public class MyTheme implements ThemeInterface {
     @Override
     public ThemeColors colors() {
-        return new ThemeColors() {
-            // Define your color palette
-        };
+        return new ThemeColors(
+            "#FFFFFF", "#F5F5F5", "#1976D2", "#FF5722",
+            "#212121", "#757575", "#E0E0E0"
+        );
     }
 
     @Override
     public ThemeTypography typography() {
-        return new ThemeTypography() {
-            // Define typography styles
-        };
+        return new ThemeTypography(24, 18, 14, 12);
     }
 
-    // ... spacing(), radius(), border()
+    @Override
+    public ThemeSpacing spacing() {
+        return new ThemeSpacing(4, 8, 16, 24, 32);
+    }
+
+    @Override
+    public ThemeBorder border() {
+        return new ThemeBorder(1, 4, 8, 16);
+    }
 }
 ```
 
-Apply the theme in your context:
+Apply the theme via ThemeManager (from megalodonte-theme):
 
 ```java
-MegalodonteApp.run(ctx -> {
-    ctx.setTheme(new MyTheme());
-});
+ThemeManager.setTheme(new MyTheme());
 ```
 
 ---
@@ -271,11 +272,10 @@ src/
  │   │   └── JavaFXHost.java
  │   ├─ base/
  │   │   ├── theme/
- │   │   │   ├── Theme.java
+ │   │   │   ├── ThemeInterface.java
  │   │   │   ├── ThemeColors.java
  │   │   │   ├── ThemeTypography.java
  │   │   │   ├── ThemeSpacing.java
- │   │   │   ├── ThemeRadius.java
  │   │   │   └── ThemeBorder.java
  │   │   ├── components/
  │   │   ├── async/

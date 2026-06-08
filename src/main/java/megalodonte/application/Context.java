@@ -3,11 +3,13 @@ package megalodonte.application;
 import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import megalodonte.base.components.ComponentInterface;
 import megalodonte.base.components.ScreenComponent;
 import megalodonte.base.route.RouteResult;
 import megalodonte.base.route.RouterBase;
+
 
 public final class Context {
 
@@ -45,6 +47,9 @@ public final class Context {
         stage.setResizable(props.screenIsExpandable());
         stage.setScene(new Scene(parentLayout, props.screenWidth(), props.screenHeight()));
         stage.setTitle(routeResult.props().name());
+        if (props.iconPath() != null && !props.iconPath().isEmpty()) {
+            stage.getIcons().add(new Image(props.iconPath()));
+        }
         // onMount já foi chamado dentro do Router.resolveWithStage()
     }
 
@@ -57,8 +62,20 @@ public final class Context {
         stage.setScene(new Scene((Parent) component.getJavaFxNode(), width, height));
     }
 
-    public RouterBase useRouter(RouterBase router) {
+    public RouterBuilder useRouter(RouterBase router) {
         router.bind(this);
-        return router;
+        return new RouterBuilder(router);
+    }
+
+    public final class RouterBuilder {
+        private final RouterBase router;
+
+        RouterBuilder(RouterBase router) {
+            this.router = router;
+        }
+
+        public void start() {
+            useView(router.entrypoint());
+        }
     }
 }
