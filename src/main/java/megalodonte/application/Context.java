@@ -14,10 +14,20 @@ import megalodonte.base.route.RouterBase;
 public final class Context {
 
     private final Stage stage;
+    private final String[] args;
     public final double width = 600, height = 500;
 
-    Context(Stage stage) {
+    Context(Stage stage, String[] args) {
         this.stage = stage;
+        this.args = args == null ? new String[0] : args;
+    }
+
+    Context(Stage stage) {
+        this(stage, new String[0]);
+    }
+
+    public String[] getArgs() {
+        return args;
     }
 
     public Stage javafxStage() {

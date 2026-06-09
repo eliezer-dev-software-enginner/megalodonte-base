@@ -10,13 +10,13 @@ public final class Bootstrap {
     public static Consumer<MegalodonteApp.Event> eventHandler;
     public static String appName = null;
 
-    public static void dispatch(Stage stage) {
+    public static void dispatch(Stage stage, String[] args) {
         // Define WM_CLASS no Linux antes de qualquer coisa
         if (appName != null) {
             applyAppName(stage);
         }
 
-        var context = new Context(stage);
+        var context = new Context(stage, args);
         MegalodonteApp.setCurrentContext(context);
 
         if (handler != null) {
@@ -24,6 +24,10 @@ public final class Bootstrap {
         }
 
         stage.show();
+    }
+
+    public static void dispatch(Stage stage) {
+        dispatch(stage, new String[0]);
     }
 
     private static void applyAppName(Stage stage) {

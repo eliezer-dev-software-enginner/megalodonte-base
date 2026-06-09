@@ -10,7 +10,8 @@ public final class JavaFXHost extends Application {
         System.out.println("JavaFXHost START CALLED");
 
         primaryStage.setOnCloseRequest(e -> Bootstrap.dispatchEvent(MegalodonteApp.Event.CloseRequest));
-        
-        Bootstrap.dispatch(primaryStage);
+
+        var raw = getParameters().getRaw();
+        Bootstrap.dispatch(primaryStage, raw.toArray(new String[0]));
     }
 }

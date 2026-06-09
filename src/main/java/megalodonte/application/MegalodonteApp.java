@@ -17,6 +17,11 @@ public final class MegalodonteApp {
         return currentContext;
     }
 
+    public static String[] getArgs() {
+        var ctx = currentContext;
+        return ctx != null ? ctx.getArgs() : new String[0];
+    }
+
     static void setCurrentContext(Context context) {
         currentContext = context;
     }
@@ -35,6 +40,12 @@ public final class MegalodonteApp {
     public static void run(Consumer<Context> contextHandler) {
         Bootstrap.handler = contextHandler;
         Application.launch(JavaFXHost.class);
+    }
+
+    public static void run(String[] args, Consumer<Context> contextHandler, Consumer<Event> onEvent) {
+        Bootstrap.handler = contextHandler;
+        Bootstrap.eventHandler = onEvent;
+        Application.launch(JavaFXHost.class, args);
     }
 
     public static void run(String[] args, Consumer<Context> contextHandler) {
