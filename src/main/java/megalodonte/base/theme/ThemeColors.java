@@ -7,5 +7,6 @@ public record ThemeColors(
         String secondary,
         String textPrimary,
         String textSecondary,
-        String border
+        String border,
+        String placeholder
 ) {}
