@@ -9,6 +9,7 @@ import megalodonte.base.components.ComponentInterface;
 import megalodonte.base.components.ScreenComponent;
 import megalodonte.base.route.RouteResult;
 import megalodonte.base.route.RouterBase;
+import megalodonte.base.scale.ScaleProvider;
 
 
 public final class Context {
@@ -55,7 +56,9 @@ public final class Context {
         var props = routeResult.props();
         var parentLayout = (Parent) routeResult.view().getJavaFxNode();
         stage.setResizable(props.screenIsExpandable());
-        stage.setScene(new Scene(parentLayout, props.screenWidth(), props.screenHeight()));
+        stage.setScene(new Scene(parentLayout,
+                ScaleProvider.scale(props.screenWidth()),
+                ScaleProvider.scale(props.screenHeight())));
         stage.setTitle(routeResult.props().name());
         if (props.iconPath() != null && !props.iconPath().isEmpty()) {
             stage.getIcons().add(new Image(props.iconPath()));
