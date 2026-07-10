@@ -7,4 +7,7 @@ public interface ScreenComponent {
         // Implementação vazia - método opcional
     }
 
+    default void onDestroy() {
+        // Implementação vazia - método opcional
+    }
 }
