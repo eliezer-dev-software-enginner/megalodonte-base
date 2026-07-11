@@ -8,5 +8,8 @@ public record ThemeColors(
         String textPrimary,
         String textSecondary,
         String border,
-        String placeholder
+        String placeholder,
+        String selection,
+        String focusRing,
+        String hover
 ) {}
