@@ -2,6 +2,7 @@ package megalodonte.base.components;
 
 import javafx.animation.Animation;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 
 import java.util.function.Function;
 
@@ -63,18 +64,35 @@ public abstract class Component implements ComponentInterface<Component> {
     }
 
     private Function<Component, Animation> animationHandler;
+
     public Component attachAnimation(Function<Component, Animation> animationHandler){
         this.animationHandler = animationHandler;
+        if (this.animationHandler == null) return this;
 
-        if (this.animationHandler != null) {
-            Animation animation = this.animationHandler.apply(this);
-            if (animation != null) {
-                animation.play();
-            }
+        if (node.getScene() != null) {
+            playAnimation();
+        } else {
+            node.sceneProperty().addListener(new javafx.beans.value.ChangeListener<Scene>() {
+                @Override
+                public void changed(javafx.beans.value.ObservableValue<? extends Scene> obs, Scene oldScene, Scene newScene) {
+                    if (newScene != null) {
+                        playAnimation();
+                        node.sceneProperty().removeListener(this);
+                    }
+                }
+            });
         }
 
         return this;
     }
+
+    private void playAnimation() {
+        Animation animation = this.animationHandler.apply(this);
+        if (animation != null) {
+            animation.play();
+        }
+    }
+
 
 
 

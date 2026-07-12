@@ -63,6 +63,7 @@ public final class Context {
         if (props.iconPath() != null && !props.iconPath().isEmpty()) {
             stage.getIcons().add(new Image(props.iconPath()));
         }
+        stage.centerOnScreen();
         // onMount já foi chamado dentro do Router.resolveWithStage()
     }
 
