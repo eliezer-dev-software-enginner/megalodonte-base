@@ -72,8 +72,12 @@ public class Animations {
 
     /** Cresce/encolhe suavemente a partir do centro, combinado com fade. Bom para modais/cards. */
     public static Animation fadeScale(Component c, boolean entering) {
-        FadeTransition ft = new FadeTransition(Duration.millis(180), c.getNode());
-        ScaleTransition st = new ScaleTransition(Duration.millis(180), c.getNode());
+        return fadeScale(c, entering, Duration.millis(180));
+    }
+
+    public static Animation fadeScale(Component c, boolean entering, Duration duration) {
+        FadeTransition ft = new FadeTransition(duration, c.getNode());
+        ScaleTransition st = new ScaleTransition(duration, c.getNode());
 
         if (entering) {
             ft.setFromValue(0);   ft.setToValue(1);
