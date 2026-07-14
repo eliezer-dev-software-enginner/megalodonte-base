@@ -1,10 +1,6 @@
 package megalodonte.base.components;
 
-import javafx.animation.Animation;
 import javafx.scene.Node;
-import javafx.scene.Scene;
-
-import java.util.function.Function;
 
 public abstract class Component implements ComponentInterface<Component> {
     protected final Node node;
@@ -48,7 +44,7 @@ public abstract class Component implements ComponentInterface<Component> {
         if (node == null) {
             throw new IllegalArgumentException("Node can not be null");
         }
-        
+
         // Wrapper component para um Node JavaFX existente
         return new Component(node) {
             @Override
@@ -63,42 +59,14 @@ public abstract class Component implements ComponentInterface<Component> {
         };
     }
 
-    private Function<Component, Animation> animationHandler;
-
-    public Component attachAnimation(Function<Component, Animation> animationHandler){
-        this.animationHandler = animationHandler;
-        if (this.animationHandler == null) return this;
-
-        if (node.getScene() != null) {
-            playAnimation();
-        } else {
-            node.sceneProperty().addListener(new javafx.beans.value.ChangeListener<Scene>() {
-                @Override
-                public void changed(javafx.beans.value.ObservableValue<? extends Scene> obs, Scene oldScene, Scene newScene) {
-                    if (newScene != null) {
-                        playAnimation();
-                        node.sceneProperty().removeListener(this);
-                    }
-                }
-            });
-        }
-
+    public <T extends Component> Component ref(Ref<T> ref) {
+        ref.setCurrent((T) this);
         return this;
     }
 
-    private void playAnimation() {
-        Animation animation = this.animationHandler.apply(this);
-        if (animation != null) {
-            animation.play();
-        }
-    }
-
-
-
-
     @FunctionalInterface
     public interface Transition {
-        Animation play(Component c, boolean entering);
+        javafx.animation.Animation play(Component c, boolean entering);
     }
 
 }
