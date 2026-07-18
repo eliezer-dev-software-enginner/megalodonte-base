@@ -1,6 +1,6 @@
 package megalodonte.base.components;
 
-public class Ref<T extends Component> {
+public class Ref<T> {
     private T current;
 
     public Ref() {

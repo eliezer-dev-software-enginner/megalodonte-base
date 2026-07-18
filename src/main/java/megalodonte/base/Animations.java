@@ -6,11 +6,34 @@ import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
+import javafx.scene.Node;
 import javafx.util.Duration;
 import megalodonte.base.components.Component;
 
 public class Animations {
 
+    public static Animation rotate(Node node, double fromAngle, double toAngle, Duration duration) {
+        javafx.animation.RotateTransition rt = new javafx.animation.RotateTransition(duration, node);
+        rt.setFromAngle(fromAngle);
+        rt.setToAngle(toAngle);
+        return rt;
+    }
+
+    public static Animation rotate360(Node node) {
+        return rotate(node, 0, 360, Duration.millis(500));
+    }
+    /** Rotação livre entre dois ângulos. Útil para ícones de refresh, toggles, setas de expand/collapse. */
+    public static Animation rotate(Component c, double fromAngle, double toAngle, Duration duration) {
+        javafx.animation.RotateTransition rt = new javafx.animation.RotateTransition(duration, c.getNode());
+        rt.setFromAngle(fromAngle);
+        rt.setToAngle(toAngle);
+        return rt;
+    }
+
+    /** Giro completo de 360°. Bom para ícone de "atualizar"/loading ao clicar. */
+    public static Animation rotate360(Component c) {
+        return rotate(c, 0, 360, Duration.millis(500));
+    }
     public static Animation fadeSlide(Component c, boolean entering) {
         return fadeSlide(c, entering, Duration.ZERO);
     }
