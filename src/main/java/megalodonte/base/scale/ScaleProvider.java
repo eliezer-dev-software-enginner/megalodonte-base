@@ -38,21 +38,35 @@ public final class ScaleProvider {
         scaleFactor = null;
     }
 
+
     private static double detectScale() {
         try {
             Screen screen = Screen.getPrimary();
-            double dpi = screen.getDpi();
             double outputScale = screen.getOutputScaleX();
 
-            if (dpi <= 0 || outputScale <= 0) {
-                return fallbackScale();
-            }
+            if (outputScale <= 0) return 1.0;
 
-            return Math.max(0.5, Math.min(dpi / referenceDpi / outputScale, 3.0));
+            return Math.max(0.5, Math.min(outputScale, 3.0));
         } catch (Exception e) {
-            return fallbackScale();
+            return 1.0;
         }
     }
+
+//    private static double detectScale() {
+//        try {
+//            Screen screen = Screen.getPrimary();
+//            double dpi = screen.getDpi();
+//            double outputScale = screen.getOutputScaleX();
+//
+//            if (dpi <= 0 || outputScale <= 0) {
+//                return fallbackScale();
+//            }
+//
+//            return Math.max(0.5, Math.min(dpi / referenceDpi / outputScale, 3.0));
+//        } catch (Exception e) {
+//            return fallbackScale();
+//        }
+//    }
 
     private static double fallbackScale() {
         try {
