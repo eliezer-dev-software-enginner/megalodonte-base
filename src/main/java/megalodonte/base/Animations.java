@@ -2,6 +2,7 @@ package megalodonte.base;
 
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
+import javafx.animation.Interpolator;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.SequentialTransition;
@@ -362,6 +363,45 @@ public class Animations {
         }
 
         var p = new ParallelTransition(tt, ft);
+        p.setDelay(delay);
+        return p;
+    }
+
+    /**
+     * Entrada suave para grids de cards: fade + leve subida + leve escala, com
+     * easing (EASE_OUT) e duração mais longa (450ms por padrão) que as demais
+     * combinações fade+slide daqui — pensada pra não parecer um "pop" seco.
+     */
+    public static Animation riseIn(Component c, boolean entering) {
+        return riseIn(c, entering, Duration.millis(450));
+    }
+
+    public static Animation riseIn(Component c, boolean entering, Duration duration) {
+        return riseIn(c, entering, duration, Duration.ZERO);
+    }
+
+    public static Animation riseIn(Component c, boolean entering, Duration duration, Duration delay) {
+        FadeTransition ft = new FadeTransition(duration, c.getNode());
+        TranslateTransition tt = new TranslateTransition(duration, c.getNode());
+        ScaleTransition st = new ScaleTransition(duration, c.getNode());
+
+        ft.setInterpolator(Interpolator.EASE_OUT);
+        tt.setInterpolator(Interpolator.EASE_OUT);
+        st.setInterpolator(Interpolator.EASE_OUT);
+
+        if (entering) {
+            ft.setFromValue(0); ft.setToValue(1);
+            tt.setFromY(18);    tt.setToY(0);
+            st.setFromX(0.96);  st.setToX(1.0);
+            st.setFromY(0.96);  st.setToY(1.0);
+        } else {
+            ft.setFromValue(1); ft.setToValue(0);
+            tt.setFromY(0);     tt.setToY(18);
+            st.setFromX(1.0);   st.setToX(0.96);
+            st.setFromY(1.0);   st.setToY(0.96);
+        }
+
+        var p = new ParallelTransition(ft, tt, st);
         p.setDelay(delay);
         return p;
     }
