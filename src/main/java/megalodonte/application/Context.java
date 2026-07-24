@@ -10,6 +10,7 @@ import megalodonte.base.components.ScreenComponent;
 import megalodonte.base.route.RouteResult;
 import megalodonte.base.route.RouterBase;
 import megalodonte.base.scale.ScaleProvider;
+import megalodonte.base.theme.ThemeManager;
 
 
 public final class Context {
@@ -46,7 +47,9 @@ public final class Context {
 
     public void useView(ScreenComponent component) {
        var parentLayout = (Parent) component.render().getJavaFxNode();
-        stage.setScene(new Scene(parentLayout, width, height));
+        var scene = new Scene(parentLayout, width, height);
+        ThemeManager.applyFontFamily(scene);
+        stage.setScene(scene);
 
         //após o stage.show() do Bootstrap executar. O onMount vai rodar com o stage já visível e a Scene já anexada.
         Platform.runLater(component::onMount);
@@ -56,9 +59,11 @@ public final class Context {
         var props = routeResult.props();
         var parentLayout = (Parent) routeResult.view().getJavaFxNode();
         stage.setResizable(props.screenIsExpandable());
-        stage.setScene(new Scene(parentLayout,
+        var scene = new Scene(parentLayout,
                 ScaleProvider.scale(props.screenWidth()),
-                ScaleProvider.scale(props.screenHeight())));
+                ScaleProvider.scale(props.screenHeight()));
+        ThemeManager.applyFontFamily(scene);
+        stage.setScene(scene);
         stage.setTitle(routeResult.props().name());
         if (props.iconPath() != null && !props.iconPath().isEmpty()) {
             stage.getIcons().add(new Image(props.iconPath()));
@@ -73,7 +78,9 @@ public final class Context {
      */
     @Deprecated(forRemoval = true)
     public void useView(ComponentInterface<?> component) {
-        stage.setScene(new Scene((Parent) component.getJavaFxNode(), width, height));
+        var scene = new Scene((Parent) component.getJavaFxNode(), width, height);
+        ThemeManager.applyFontFamily(scene);
+        stage.setScene(scene);
     }
 
     public RouterBuilder useRouter(RouterBase router) {

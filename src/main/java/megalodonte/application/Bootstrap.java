@@ -1,6 +1,7 @@
 package megalodonte.application;
 
 import javafx.stage.Stage;
+import megalodonte.base.theme.FontLoader;
 
 import java.util.function.Consumer;
 
@@ -15,6 +16,11 @@ public final class Bootstrap {
         if (appName != null) {
             applyAppName(stage);
         }
+
+        // Registra fontes de assets/fonts/ (ver FontLoader) antes de qualquer Scene ser
+        // criada — é o que torna os nomes de família usáveis em ThemeTypography.fontFamily().
+        // No-op silencioso se a app não tiver essa pasta.
+        FontLoader.loadAll();
 
         var context = new Context(stage, args);
         MegalodonteApp.setCurrentContext(context);
