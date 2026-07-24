@@ -1,17 +1,11 @@
 package megalodonte.application;
 
-import javafx.application.Application;
-import javafx.stage.Stage;
-
-public final class JavaFXHost extends Application {
-
-    @Override
-    public void start(Stage primaryStage) {
-        System.out.println("JavaFXHost START CALLED");
-
-        primaryStage.setOnCloseRequest(e -> Bootstrap.dispatchEvent(MegalodonteApp.Event.CloseRequest));
-
-        var raw = getParameters().getRaw();
-        Bootstrap.dispatch(primaryStage, raw.toArray(new String[0]));
-    }
+/**
+ * Default shared launcher, used by the {@link MegalodonteApp#run} overloads that
+ * don't take a {@code Class<? extends Application>}. Every app relying on this
+ * default reports the same WM_CLASS on Linux (see {@link MegalodonteApplication}'s
+ * javadoc) — extend {@link MegalodonteApplication} directly with your own subclass
+ * instead if you want a taskbar icon distinct from other megalodonte apps.
+ */
+public final class JavaFXHost extends MegalodonteApplication {
 }
