@@ -1,7 +1,6 @@
 package megalodonte.base.theme;
 
 import megalodonte.base.scale.ScaleProvider;
-import megalodonte.utils.related.TextVariant;
 
 /**
  * @param fontFamily Name of the font family the application should use (e.g. "Roboto").
@@ -31,13 +30,4 @@ public record ThemeTypography(String fontFamily, int title, int subtitle, int bo
 
     @Override
     public int small() { return ScaleProvider.scale(small); }
-
-    public int resolve(TextVariant variant) {
-        return ScaleProvider.scale(switch (variant) {
-            case TITLE -> title;
-            case SUBTITLE -> subtitle;
-            case BODY -> body;
-            case SMALL -> small;
-        });
-    }
 }
