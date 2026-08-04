@@ -51,8 +51,18 @@ public final class Context {
         ThemeManager.applyFontFamily(scene);
         stage.setScene(scene);
 
-        //após o stage.show() do Bootstrap executar. O onMount vai rodar com o stage já visível e a Scene já anexada.
-        Platform.runLater(component::onMount);
+        // Ambos rodam depois do stage.show() do Bootstrap (que só acontece depois
+        // deste handler retornar). onMount precisa do stage já visível e da Scene já
+        // anexada. centerOnScreen() precisa do tamanho FINAL da stage — é o show()/
+        // layout inicial que aplica minWidth/minHeight de fato, se a app tiver
+        // setado; chamado antes disso ele centralizaria contra um tamanho ainda
+        // provisório, e a janela "cresceria" pra direita/baixo depois de já
+        // posicionada (bug real observado numa app que setava minWidth/minHeight
+        // antes de useView()). runLater roda no próximo pulse, já com show() concluído.
+        Platform.runLater(() -> {
+            component.onMount();
+            stage.centerOnScreen();
+        });
     }
 
     public void useView(RouteResult routeResult) {
