@@ -1,10 +1,13 @@
 package megalodonte.application;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import megalodonte.base.components.ComponentInterface;
 import megalodonte.base.components.ScreenComponent;
 import megalodonte.base.route.RouteResult;
@@ -51,18 +54,38 @@ public final class Context {
         ThemeManager.applyFontFamily(scene);
         stage.setScene(scene);
 
-        // Ambos rodam depois do stage.show() do Bootstrap (que só acontece depois
-        // deste handler retornar). onMount precisa do stage já visível e da Scene já
-        // anexada. centerOnScreen() precisa do tamanho FINAL da stage — é o show()/
-        // layout inicial que aplica minWidth/minHeight de fato, se a app tiver
-        // setado; chamado antes disso ele centralizaria contra um tamanho ainda
-        // provisório, e a janela "cresceria" pra direita/baixo depois de já
-        // posicionada (bug real observado numa app que setava minWidth/minHeight
-        // antes de useView()). runLater roda no próximo pulse, já com show() concluído.
-        Platform.runLater(() -> {
-            component.onMount();
+        //após o stage.show() do Bootstrap executar. O onMount vai rodar com o stage já visível e a Scene já anexada.
+        Platform.runLater(component::onMount);
+        centerAfterLayoutSettles(stage);
+    }
+
+    /**
+     * centerOnScreen() precisa do tamanho FINAL da stage, mas quanto tempo o layout
+     * leva pra se estabilizar varia — fontes/imagens carregando, várias passadas de
+     * CSS/layout, minWidth/minHeight só aplicados no show() do Bootstrap (que só
+     * acontece depois do handler de {@code MegalodonteApp.run(...)} retornar). Um
+     * único {@code Platform.runLater(...)} funciona às vezes e às vezes não —
+     * observado na prática: a janela abria centralizada em algumas execuções e
+     * deslocada em outras, mesmo sem mudar nada no código.
+     * <p>
+     * Em vez de adivinhar quantos pulses esperar, reage a QUALQUER mudança real de
+     * largura/altura da stage recentralizando, e para de escutar depois de uma janela
+     * curta — do contrário, mudanças de tamanho legítimas e posteriores (o usuário
+     * redimensionando a janela, ou uma tela trocando o conteúdo depois) forçariam a
+     * app a se recentralizar sozinha pra sempre, o que seria um bug por si só.
+     */
+    private static void centerAfterLayoutSettles(Stage stage) {
+        ChangeListener<Number> recenter = (obs, oldValue, newValue) -> stage.centerOnScreen();
+        stage.widthProperty().addListener(recenter);
+        stage.heightProperty().addListener(recenter);
+
+        PauseTransition settle = new PauseTransition(Duration.millis(300));
+        settle.setOnFinished(e -> {
+            stage.widthProperty().removeListener(recenter);
+            stage.heightProperty().removeListener(recenter);
             stage.centerOnScreen();
         });
+        settle.play();
     }
 
     public void useView(RouteResult routeResult) {
