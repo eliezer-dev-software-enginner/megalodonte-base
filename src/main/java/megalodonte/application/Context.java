@@ -60,6 +60,34 @@ public final class Context {
     }
 
     /**
+     * Re-renders {@code component} in place — swaps the current {@link Scene}'s
+     * root node, keeping the Stage's existing Scene, size and position
+     * untouched. Unlike {@link #useView(ScreenComponent)}, which creates a
+     * brand-new {@code Scene} and re-centers the window (right for the
+     * <em>first</em> render, since the Stage doesn't have a size to preserve
+     * yet), this is for reactive re-renders of an already-showing screen —
+     * e.g. switching themes — where the window visibly jumping/resizing
+     * would be a regression, not a feature.
+     * <p>
+     * Deliberately does NOT call {@code component.onMount()} — that hook is a
+     * one-time "just mounted" signal (e.g. {@code HomeScreen.onMount()} reopens
+     * the last saved layout from disk), not something that should re-fire on
+     * every re-render triggered by this method.
+     * <p>
+     * Falls back to {@link #useView(ScreenComponent)} if the Stage has no
+     * Scene yet (nothing to swap the root of).
+     */
+    public void updateView(ScreenComponent component) {
+        var parentLayout = (Parent) component.render().getJavaFxNode();
+        Scene scene = stage.getScene();
+        if (scene == null) {
+            useView(component);
+            return;
+        }
+        scene.setRoot(parentLayout);
+    }
+
+    /**
      * centerOnScreen() precisa do tamanho FINAL da stage, mas quanto tempo o layout
      * leva pra se estabilizar varia — fontes/imagens carregando, várias passadas de
      * CSS/layout, minWidth/minHeight só aplicados no show() do Bootstrap (que só
