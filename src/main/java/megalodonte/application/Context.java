@@ -78,12 +78,12 @@ public final class Context {
      * Scene yet (nothing to swap the root of).
      */
     public void updateView(ScreenComponent component) {
-        var parentLayout = (Parent) component.render().getJavaFxNode();
         Scene scene = stage.getScene();
         if (scene == null) {
             useView(component);
             return;
         }
+        var parentLayout = (Parent) component.render().getJavaFxNode();
         scene.setRoot(parentLayout);
     }
 
