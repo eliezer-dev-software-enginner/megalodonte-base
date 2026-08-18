@@ -10,6 +10,7 @@ A lightweight JavaFX framework for building desktop applications with a **React-
 - **Theme System** - Customizable colors, typography, spacing, borders, and radius
 - **Component Architecture** - React-inspired component model
 - **Async Utilities** - Easy async operations
+- **Scope** - Lifecycle-bound cancellation for async work
 - **Bootstrap Lifecycle** - Clean application startup
 
 ---
@@ -246,6 +247,41 @@ Async.run(() -> {
     });
 });
 ```
+
+---
+
+## Scope (lifecycle-bound cancellation)
+
+`Async.Run()` is fire-and-forget: it has no idea who started it, so nothing stops it if the
+screen that kicked it off is gone by the time it finishes. That's fine for a one-shot "fetch and
+update the UI" call, but it's a real bug if the task opens something that needs to be closed
+(a socket, a serial port, a listener) — if the screen is destroyed while the task is still
+setting that resource up, nothing is left to close it.
+
+`Scope` gives that kind of work a cancellable handle instead:
+
+```java
+Scope scope = new Scope();
+
+scope.run(() -> {
+    var connection = openLongLivedConnection();
+    scope.onCancel(connection::close); // fires now if already cancelled, or later when cancel() runs
+    if (scope.isCancelled()) return;   // don't start using a connection we just closed
+
+    connection.listen(data -> UI.runOnUi(() -> state.set(data)));
+});
+
+// later, when the owner (screen/ViewModel) goes away:
+scope.cancel();
+```
+
+- `run(RunnableThrowing)` — only executes the task if the scope hasn't been cancelled yet.
+- `onCancel(Runnable)` — registers cleanup for when `cancel()` runs; fires immediately if the
+  scope is already cancelled.
+- `cancel()` / `isCancelled()` — cheap, synchronous, idempotent.
+
+In `megalodonte-router` v4, every `ScreenContext` owns one of these automatically, and `Router`
+cancels it right before calling `onDestroy()` — see that module's README for `ctx.scope()`.
 
 ---
 
