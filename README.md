@@ -44,7 +44,6 @@ import megalodonte.application.Context;
 import megalodonte.router.v4.Router;
 
 public class Main {
-    static boolean devMode = true;
 
     public static void main(String[] args) {
         MegalodonteApp.run(context -> {
@@ -54,10 +53,6 @@ public class Main {
             context.javafxStage().setHeight(650);
 
             context.useRouter(AppRouter.build()).start();
-
-            MegalodonteApp.onShutdown(() -> {
-                System.out.println("Application closed");
-            });
         });
     }
 }
@@ -69,38 +64,34 @@ public class Main {
 
 ```java
 import megalodonte.application.MegalodonteApp;
+import megalodonte.application.MegalodonteApplication;
 import megalodonte.application.Context;
 import megalodonte.router.v4.Router;
 import my_app.AppRouter;
 
 public class Main {
-    static HotReload hotReload;
-    static boolean devMode = true;
+    public static class AppHost extends MegalodonteApplication {}
 
     public static void main(String[] args) {
-        MegalodonteApp.run(context -> {
+        MegalodonteApp.run(AppHost.class, args, Main::start, Main::onEvent);
+    }
 
-            var stage = context.javafxStage();
-            stage.setTitle("My App");
-            stage.setWidth(900);
-            stage.setHeight(650);
+    private static void start(Context context) {
+        var stage = context.javafxStage();
+        stage.setTitle("My App");
+        stage.setWidth(900);
+        stage.setHeight(650);
 
-            context.useRouter(AppRouter.build()).start();
+        context.useRouter(AppRouter.build()).start();
+    }
 
-            if (devMode) {
-                hotReload = new HotReload()
-                        .sourcePath("src/main/java")
-                        .classesPath("build/classes/java/main")
-                        .screenClassName("my_app.screens.homescreen.HomeScreen")
-                        .reloadContext(context)
-                        .useRouter();
-                hotReload.start();
-            }
-
-            MegalodonteApp.onShutdown(() -> {
-                if (hotReload != null) hotReload.stop();
-            });
-        });
+    // MegalodonteApp.Event only has CloseRequest today - fired when the user
+    // closes the window, so it's where you release anything the app opened
+    // outside a screen's own lifecycle (DB connections, background processes).
+    private static void onEvent(MegalodonteApp.Event event) {
+        if (event == MegalodonteApp.Event.CloseRequest) {
+            // close DB sessions, kill child processes, etc.
+        }
     }
 }
 ```
@@ -108,8 +99,8 @@ public class Main {
 ### AppRouter.java
 
 ```java
+import megalodonte.base.route.RouteProps;
 import megalodonte.router.v4.Router;
-import megalodonte.router.v4.RouteProps;
 import my_app.screens.HomeScreen;
 import my_app.screens.SettingsScreen;
 import my_app.screens.ProductsScreen;
@@ -145,16 +136,17 @@ megalodonte.application/
     ├── Context           # Application context
     └── Bootstrap         # Initialization bootstrap
 
-megalodonte.router.v4/
+megalodonte.router.v4/ (separate module: megalodonte-router)
     ├── Router            # Route definitions
-    └── RouteProps        # Route properties (size, title, etc)
+    └── ScreenContext     # Per-navigation context — ctx.navigate(), ctx.scope(), route params
 
 megalodonte.base/
     ├── theme/            # Theme configuration (ThemeInterface, ThemeColors, ThemeTypography, ThemeSpacing, ThemeBorder)
     ├── components/       # UI components
-    ├── async/            # Async utilities
+    ├── async/            # Async.Run + Scope (lifecycle-bound cancellation)
+    ├── route/            # RouteProps, ScreenContextInterface — shared with megalodonte-router
     ├── UI.java           # UI thread helpers
-    └── Redirect.java     # Navigation helper
+    └── Redirect.java     # Open a URL in the system browser
 ```
 
 ---
@@ -180,12 +172,15 @@ Router router = new Router(routes, "home");
 
 Route parameters are supported via `${param}` syntax.
 
-Use `context.getRouter().navigateTo()` to navigate between screens:
+Screens receive a `ScreenContext ctx` in their constructor — use it to navigate:
 
 ```java
-context.getRouter().navigateTo("settings");
-context.getRouter().navigateTo("product/123");
+ctx.navigate("settings");
+ctx.navigate("product/123");
 ```
+
+See `megalodonte-router`'s README for the full navigation API (spawning windows, closing them,
+reading route parameters, and automatic cancellation of in-flight work via `ctx.scope()`).
 
 Use `Redirect.to()` to open a URL in the user's browser:
 
@@ -204,8 +199,9 @@ public class MyTheme implements ThemeInterface {
     @Override
     public ThemeColors colors() {
         return new ThemeColors(
-            "#FFFFFF", "#F5F5F5", "#1976D2", "#FF5722",
-            "#212121", "#757575", "#E0E0E0"
+            "#FFFFFF", "#F5F5F5", "#1976D2", "#FF5722",  // background, surface, primary, secondary
+            "#212121", "#757575", "#E0E0E0", "#9E9E9E",  // textPrimary, textSecondary, border, placeholder
+            "#BBDEFB", "#90CAF9", "#EEEEEE"               // selection, focusRing, hover
         );
     }
 
@@ -237,16 +233,18 @@ ThemeManager.setTheme(new MyTheme());
 ## Async Operations
 
 ```java
-Async.run(() -> {
-    // Background task
-    return fetchData();
-}, result -> {
-    // Callback on completion
+Async.Run(() -> {
+    var data = fetchData(); // runs on a virtual thread
+
     UI.runOnUi(() -> {
-        // Update UI
+        // back on the JavaFX Application Thread — update state/UI here
     });
 });
 ```
+
+`Async.Run` is fire-and-forget: unhandled exceptions go to `ErrorReporter`, there's no result
+callback and no handle to cancel it. For anything that opens a resource needing symmetric
+teardown when a screen is destroyed, use `Scope` instead — see below.
 
 ---
 
@@ -303,6 +301,7 @@ src/
  ├─ main/java/megalodonte/
  │   ├─ application/
  │   │   ├── MegalodonteApp.java
+ │   │   ├── MegalodonteApplication.java
  │   │   ├── Context.java
  │   │   ├── Bootstrap.java
  │   │   └── JavaFXHost.java
@@ -315,9 +314,10 @@ src/
  │   │   │   └── ThemeBorder.java
  │   │   ├── components/
  │   │   ├── async/
+ │   │   │   ├── Async.java
+ │   │   │   └── Scope.java
  │   │   ├── UI.java
- │   │   ├── Redirect.java
- │   │   └── Utility.java
+ │   │   └── Redirect.java
  │   └─ utils/
  │
  └─ test/java/megalodonte/
