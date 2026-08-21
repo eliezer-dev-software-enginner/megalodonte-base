@@ -6,10 +6,6 @@ public abstract class Component implements ComponentInterface<Component> {
     protected final Node node;
     public PropsInterface props;
 
-    public Node getNode() {
-        return node;
-    }
-
     protected Component(Node node) {
         this.node = node;
     }

@@ -25,7 +25,7 @@ public class Animations {
     }
     /** Rotação livre entre dois ângulos. Útil para ícones de refresh, toggles, setas de expand/collapse. */
     public static Animation rotate(Component c, double fromAngle, double toAngle, Duration duration) {
-        javafx.animation.RotateTransition rt = new javafx.animation.RotateTransition(duration, c.getNode());
+        javafx.animation.RotateTransition rt = new javafx.animation.RotateTransition(duration, c.getJavaFxNode());
         rt.setFromAngle(fromAngle);
         rt.setToAngle(toAngle);
         return rt;
@@ -40,8 +40,8 @@ public class Animations {
     }
 
     public static Animation fadeSlide(Component c, boolean entering, Duration delay) {
-        FadeTransition ft = new FadeTransition(Duration.millis(200), c.getNode());
-        TranslateTransition tt = new TranslateTransition(Duration.millis(200), c.getNode());
+        FadeTransition ft = new FadeTransition(Duration.millis(200), c.getJavaFxNode());
+        TranslateTransition tt = new TranslateTransition(Duration.millis(200), c.getJavaFxNode());
 
         if (entering) {
             ft.setFromValue(0); ft.setToValue(1);
@@ -62,7 +62,7 @@ public class Animations {
     }
 
     public static Animation fade(Component c, boolean entering, Duration delay) {
-        FadeTransition ft = new FadeTransition(Duration.millis(180), c.getNode());
+        FadeTransition ft = new FadeTransition(Duration.millis(180), c.getJavaFxNode());
         if (entering) {
             ft.setFromValue(0);
             ft.setToValue(1);
@@ -80,8 +80,8 @@ public class Animations {
     }
 
     public static Animation fadeSlideDown(Component c, boolean entering, Duration delay) {
-        FadeTransition ft = new FadeTransition(Duration.millis(200), c.getNode());
-        TranslateTransition tt = new TranslateTransition(Duration.millis(200), c.getNode());
+        FadeTransition ft = new FadeTransition(Duration.millis(200), c.getJavaFxNode());
+        TranslateTransition tt = new TranslateTransition(Duration.millis(200), c.getJavaFxNode());
 
         if (entering) {
             ft.setFromValue(0); ft.setToValue(1);
@@ -102,8 +102,8 @@ public class Animations {
     }
 
     public static Animation fadeSlideUp(Component c, boolean entering, Duration delay) {
-        FadeTransition ft = new FadeTransition(Duration.millis(200), c.getNode());
-        TranslateTransition tt = new TranslateTransition(Duration.millis(200), c.getNode());
+        FadeTransition ft = new FadeTransition(Duration.millis(200), c.getJavaFxNode());
+        TranslateTransition tt = new TranslateTransition(Duration.millis(200), c.getJavaFxNode());
 
         if (entering) {
             ft.setFromValue(0); ft.setToValue(1);
@@ -128,8 +128,8 @@ public class Animations {
     }
 
     public static Animation fadeScale(Component c, boolean entering, Duration duration, Duration delay) {
-        FadeTransition ft = new FadeTransition(duration, c.getNode());
-        ScaleTransition st = new ScaleTransition(duration, c.getNode());
+        FadeTransition ft = new FadeTransition(duration, c.getJavaFxNode());
+        ScaleTransition st = new ScaleTransition(duration, c.getJavaFxNode());
 
         if (entering) {
             ft.setFromValue(0);   ft.setToValue(1);
@@ -152,8 +152,8 @@ public class Animations {
     }
 
     public static Animation pop(Component c, boolean entering, Duration delay) {
-        ScaleTransition st = new ScaleTransition(Duration.millis(220), c.getNode());
-        FadeTransition ft = new FadeTransition(Duration.millis(220), c.getNode());
+        ScaleTransition st = new ScaleTransition(Duration.millis(220), c.getJavaFxNode());
+        FadeTransition ft = new FadeTransition(Duration.millis(220), c.getJavaFxNode());
 
         if (entering) {
             st.setFromX(0.7); st.setToX(1.0);
@@ -176,7 +176,7 @@ public class Animations {
     }
 
     public static Animation slideHorizontal(Component c, boolean entering, Duration delay) {
-        TranslateTransition tt = new TranslateTransition(Duration.millis(250), c.getNode());
+        TranslateTransition tt = new TranslateTransition(Duration.millis(250), c.getJavaFxNode());
         if (entering) {
             tt.setFromX(40);
             tt.setToX(0);
@@ -194,19 +194,19 @@ public class Animations {
     }
 
     public static Animation shake(Component c, Duration delay) {
-        TranslateTransition t1 = new TranslateTransition(Duration.millis(50), c.getNode());
+        TranslateTransition t1 = new TranslateTransition(Duration.millis(50), c.getJavaFxNode());
         t1.setFromX(0); t1.setToX(-8);
 
-        TranslateTransition t2 = new TranslateTransition(Duration.millis(50), c.getNode());
+        TranslateTransition t2 = new TranslateTransition(Duration.millis(50), c.getJavaFxNode());
         t2.setFromX(-8); t2.setToX(8);
 
-        TranslateTransition t3 = new TranslateTransition(Duration.millis(50), c.getNode());
+        TranslateTransition t3 = new TranslateTransition(Duration.millis(50), c.getJavaFxNode());
         t3.setFromX(8); t3.setToX(-6);
 
-        TranslateTransition t4 = new TranslateTransition(Duration.millis(50), c.getNode());
+        TranslateTransition t4 = new TranslateTransition(Duration.millis(50), c.getJavaFxNode());
         t4.setFromX(-6); t4.setToX(6);
 
-        TranslateTransition t5 = new TranslateTransition(Duration.millis(50), c.getNode());
+        TranslateTransition t5 = new TranslateTransition(Duration.millis(50), c.getJavaFxNode());
         t5.setFromX(6); t5.setToX(0);
 
         var seq = new SequentialTransition(t1, t2, t3, t4, t5);
@@ -220,16 +220,16 @@ public class Animations {
     }
 
     public static Animation bounce(Component c, Duration delay) {
-        TranslateTransition up = new TranslateTransition(Duration.millis(200), c.getNode());
+        TranslateTransition up = new TranslateTransition(Duration.millis(200), c.getJavaFxNode());
         up.setFromY(0); up.setToY(-15);
 
-        TranslateTransition down = new TranslateTransition(Duration.millis(200), c.getNode());
+        TranslateTransition down = new TranslateTransition(Duration.millis(200), c.getJavaFxNode());
         down.setFromY(-15); down.setToY(0);
 
-        TranslateTransition up2 = new TranslateTransition(Duration.millis(150), c.getNode());
+        TranslateTransition up2 = new TranslateTransition(Duration.millis(150), c.getJavaFxNode());
         up2.setFromY(0); up2.setToY(-6);
 
-        TranslateTransition down2 = new TranslateTransition(Duration.millis(150), c.getNode());
+        TranslateTransition down2 = new TranslateTransition(Duration.millis(150), c.getJavaFxNode());
         down2.setFromY(-6); down2.setToY(0);
 
         var seq = new SequentialTransition(up, down, up2, down2);
@@ -255,7 +255,7 @@ public class Animations {
     }
 
     public static Animation pulse(Component c, int cycles, Duration speed, Duration delay) {
-        ScaleTransition st = new ScaleTransition(speed, c.getNode());
+        ScaleTransition st = new ScaleTransition(speed, c.getJavaFxNode());
         st.setFromX(1.0); st.setToX(1.15);
         st.setFromY(1.0); st.setToY(1.15);
         st.setAutoReverse(true);
@@ -270,16 +270,16 @@ public class Animations {
     }
 
     public static Animation flash(Component c, Duration delay) {
-        FadeTransition f1 = new FadeTransition(Duration.millis(100), c.getNode());
+        FadeTransition f1 = new FadeTransition(Duration.millis(100), c.getJavaFxNode());
         f1.setFromValue(1.0); f1.setToValue(0.0);
 
-        FadeTransition f2 = new FadeTransition(Duration.millis(100), c.getNode());
+        FadeTransition f2 = new FadeTransition(Duration.millis(100), c.getJavaFxNode());
         f2.setFromValue(0.0); f2.setToValue(1.0);
 
-        FadeTransition f3 = new FadeTransition(Duration.millis(100), c.getNode());
+        FadeTransition f3 = new FadeTransition(Duration.millis(100), c.getJavaFxNode());
         f3.setFromValue(1.0); f3.setToValue(0.0);
 
-        FadeTransition f4 = new FadeTransition(Duration.millis(100), c.getNode());
+        FadeTransition f4 = new FadeTransition(Duration.millis(100), c.getJavaFxNode());
         f4.setFromValue(0.0); f4.setToValue(1.0);
 
         var seq = new SequentialTransition(f1, f2, f3, f4);
@@ -293,22 +293,22 @@ public class Animations {
     }
 
     public static Animation wobble(Component c, Duration delay) {
-        TranslateTransition t1 = new TranslateTransition(Duration.millis(100), c.getNode());
+        TranslateTransition t1 = new TranslateTransition(Duration.millis(100), c.getJavaFxNode());
         t1.setFromX(0); t1.setToX(-10);
 
-        TranslateTransition t2 = new TranslateTransition(Duration.millis(100), c.getNode());
+        TranslateTransition t2 = new TranslateTransition(Duration.millis(100), c.getJavaFxNode());
         t2.setFromX(-10); t2.setToX(10);
 
-        TranslateTransition t3 = new TranslateTransition(Duration.millis(100), c.getNode());
+        TranslateTransition t3 = new TranslateTransition(Duration.millis(100), c.getJavaFxNode());
         t3.setFromX(10); t3.setToX(-5);
 
-        TranslateTransition t4 = new TranslateTransition(Duration.millis(100), c.getNode());
+        TranslateTransition t4 = new TranslateTransition(Duration.millis(100), c.getJavaFxNode());
         t4.setFromX(-5); t4.setToX(5);
 
-        TranslateTransition t5 = new TranslateTransition(Duration.millis(100), c.getNode());
+        TranslateTransition t5 = new TranslateTransition(Duration.millis(100), c.getJavaFxNode());
         t5.setFromX(5); t5.setToX(0);
 
-        FadeTransition fade = new FadeTransition(Duration.millis(400), c.getNode());
+        FadeTransition fade = new FadeTransition(Duration.millis(400), c.getJavaFxNode());
         fade.setFromValue(1.0); fade.setToValue(0.0);
 
         var seq = new SequentialTransition(
@@ -329,8 +329,8 @@ public class Animations {
     }
 
     public static Animation slideInLeft(Component c, boolean entering, Duration delay) {
-        TranslateTransition tt = new TranslateTransition(Duration.millis(250), c.getNode());
-        FadeTransition ft = new FadeTransition(Duration.millis(250), c.getNode());
+        TranslateTransition tt = new TranslateTransition(Duration.millis(250), c.getJavaFxNode());
+        FadeTransition ft = new FadeTransition(Duration.millis(250), c.getJavaFxNode());
 
         if (entering) {
             tt.setFromX(-60); tt.setToX(0);
@@ -351,8 +351,8 @@ public class Animations {
     }
 
     public static Animation slideInRight(Component c, boolean entering, Duration delay) {
-        TranslateTransition tt = new TranslateTransition(Duration.millis(250), c.getNode());
-        FadeTransition ft = new FadeTransition(Duration.millis(250), c.getNode());
+        TranslateTransition tt = new TranslateTransition(Duration.millis(250), c.getJavaFxNode());
+        FadeTransition ft = new FadeTransition(Duration.millis(250), c.getJavaFxNode());
 
         if (entering) {
             tt.setFromX(60); tt.setToX(0);
@@ -381,9 +381,9 @@ public class Animations {
     }
 
     public static Animation riseIn(Component c, boolean entering, Duration duration, Duration delay) {
-        FadeTransition ft = new FadeTransition(duration, c.getNode());
-        TranslateTransition tt = new TranslateTransition(duration, c.getNode());
-        ScaleTransition st = new ScaleTransition(duration, c.getNode());
+        FadeTransition ft = new FadeTransition(duration, c.getJavaFxNode());
+        TranslateTransition tt = new TranslateTransition(duration, c.getJavaFxNode());
+        ScaleTransition st = new ScaleTransition(duration, c.getJavaFxNode());
 
         ft.setInterpolator(Interpolator.EASE_OUT);
         tt.setInterpolator(Interpolator.EASE_OUT);
