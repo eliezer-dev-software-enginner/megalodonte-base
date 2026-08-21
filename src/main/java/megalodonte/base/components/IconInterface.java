@@ -3,7 +3,7 @@ package megalodonte.base.components;
 import javafx.scene.Node;
 
 public abstract class IconInterface {
-    public abstract Node getNode();
+    public abstract Node getJavaFxNode();
 
     public IconInterface ref(Ref<IconInterface> ref) {
         ref.setCurrent(this);
@@ -13,7 +13,7 @@ public abstract class IconInterface {
     public static IconInterface of(Node node) {
         return new IconInterface() {
             @Override
-            public Node getNode() {
+            public Node getJavaFxNode() {
                 return node;
             }
         };
