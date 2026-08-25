@@ -81,6 +81,7 @@ public abstract class Component implements ComponentInterface<Component> {
      * @param ref the reference to bind to
      * @return this component for chaining
      */
+    @SuppressWarnings("unchecked")
     public <T extends Component> Component ref(Ref<T> ref) {
         ref.setCurrent((T) this);
         return this;
