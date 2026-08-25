@@ -25,9 +25,13 @@ public final class Bootstrap {
 
     // Context and Event have different lifecycles — context arrives once at startup,
     // events arrive later, asynchronously.
+    /** Application startup handler, called once with the {@link Context}. */
     public static Consumer<Context> handler;
+    /** Framework event handler (e.g. {@link MegalodonteApp.Event#CloseRequest}). */
     public static Consumer<MegalodonteApp.Event> eventHandler;
+    /** Application display name, or null if not set. */
     public static String appName = null;
+    /** Classpath resource path for the app icon, or null if not set. */
     public static String appIconResourcePath = null;
 
     /**
@@ -74,10 +78,12 @@ public final class Bootstrap {
         log.info("Bootstrap dispatch complete, stage shown");
     }
 
+    /** @see #dispatch(Class, Stage, String[]) */
     public static void dispatch(Stage stage, String[] args) {
         dispatch(JavaFXHost.class, stage, args);
     }
 
+    /** @see #dispatch(Class, Stage, String[]) */
     public static void dispatch(Stage stage) {
         dispatch(stage, new String[0]);
     }

@@ -20,7 +20,9 @@ public final class ErrorReporter {
 
     private ErrorReporter() {}
 
-    /** Registers the application-specific error handler. Called once at bootstrap. */
+    /** Registers the application-specific error handler. Called once at bootstrap.
+     * @param appHandler the error handler implementation
+     */
     public static void register(Handler appHandler) {
         handler = appHandler;
     }

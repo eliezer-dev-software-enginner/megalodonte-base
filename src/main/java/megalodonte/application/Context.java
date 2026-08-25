@@ -38,12 +38,12 @@ public final class Context {
         this(stage, new String[0]);
     }
 
-    /** Returns the command-line arguments passed to the application. */
+    /** Returns the command-line arguments passed to the application. @return the arguments array */
     public String[] getArgs() {
         return args;
     }
 
-    /** Returns the primary JavaFX stage managed by this context. */
+    /** Returns the primary JavaFX stage managed by this context. @return the primary stage */
     public Stage javafxStage() {
         return stage;
     }
@@ -99,6 +99,8 @@ public final class Context {
      * <p>
      * Falls back to {@link #useView(ScreenComponent)} if the Stage has no
      * Scene yet (nothing to swap the root of).
+     *
+     * @param component the screen component to re-render in place
      */
     public void updateView(ScreenComponent component) {
         Scene scene = stage.getScene();
@@ -140,7 +142,7 @@ public final class Context {
     }
 
     /**
-     * Renders a route result, applying its {@link RouteProps} (dimensions, title, icon,
+     * Renders a route result, applying its {@link megalodonte.base.route.RouteProps} (dimensions, title, icon,
      * resizability) to the stage. Does not call {@code onMount} — that is handled by
      * the router.
      *
@@ -165,7 +167,7 @@ public final class Context {
 
     /**
      * Advise: onMount will not work using this method
-     * @param component
+     * @param component the component to render (deprecated, use {@link #useView(ScreenComponent)})
      */
     @Deprecated(forRemoval = true)
     public void useView(ComponentInterface<?> component) {

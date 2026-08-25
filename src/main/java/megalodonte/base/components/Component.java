@@ -10,13 +10,22 @@ import javafx.scene.Node;
  * Use {@link #CreateFromJavaFxNode} to wrap an existing node as a component.
  */
 public abstract class Component implements ComponentInterface<Component> {
+    /** The underlying JavaFX node. */
     protected final Node node;
+    /** Optional properties applied to this component. */
     public PropsInterface props;
 
+    /** Creates a component wrapping the given node.
+     * @param node the JavaFX node to wrap
+     */
     protected Component(Node node) {
         this.node = node;
     }
 
+    /** Creates a component wrapping the given node and applies the given props.
+     * @param node  the JavaFX node to wrap
+     * @param props the properties to apply
+     */
     protected Component(Node node, PropsInterface props) {
         this.node = node;
         setProps(node, props);
@@ -77,8 +86,19 @@ public abstract class Component implements ComponentInterface<Component> {
         return this;
     }
 
-    @FunctionalInterface
+    /**
+     * Functional interface for screen enter/exit transition animations.
+     * Implementations return a {@link javafx.animation.Animation} that will
+     * be played on the component.
+     */
     public interface Transition {
+        /**
+         * Creates the transition animation.
+         *
+         * @param c        the component to animate
+         * @param entering true if the component is entering, false if exiting
+         * @return the animation to play
+         */
         javafx.animation.Animation play(Component c, boolean entering);
     }
 

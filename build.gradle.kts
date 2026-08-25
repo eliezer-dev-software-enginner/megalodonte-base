@@ -58,6 +58,12 @@ tasks.test {
     enabled = false
 }
 
+tasks.javadoc {
+    (options as? org.gradle.external.javadoc.StandardJavadocDocletOptions)?.apply {
+        addStringOption("Xdoclint:none", "-quiet")
+    }
+}
+
 tasks.jar {
     archiveBaseName.set("megalodonte-base")
 

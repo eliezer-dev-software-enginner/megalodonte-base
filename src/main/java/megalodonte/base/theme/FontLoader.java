@@ -31,7 +31,7 @@ import java.util.stream.Stream;
  * to be registered per file or per family — dropping a font file under that directory is
  * enough for the application to be able to use its family name.
  * <p>
- * This runs automatically once at startup (see {@link Bootstrap#dispatch}), so applications
+ * This runs automatically once at startup (see {@link megalodonte.application.Bootstrap#dispatch}), so applications
  * built on this framework normally never need to call it directly. It's safe to call more
  * than once (JavaFX simply re-registers the same family) and it's a no-op — not an error —
  * when the directory doesn't exist, so apps that don't ship custom fonts pay no cost.

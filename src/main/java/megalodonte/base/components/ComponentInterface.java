@@ -9,9 +9,12 @@ import javafx.scene.Node;
  * @param <T> the concrete component type (self-referencing)
  */
 public interface ComponentInterface <T extends ComponentInterface<T>> {
-    /** Returns the underlying JavaFX node. */
+    /** Returns the underlying JavaFX node. @return the JavaFX node */
     Node getJavaFxNode();
 
-    /** Creates a new component wrapping the given node. */
+    /** Creates a new component wrapping the given node.
+     * @param node the JavaFX node to wrap
+     * @return a new component wrapping the node
+     */
     T fromJavaFxNode(Node node);
 }
