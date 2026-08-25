@@ -1,6 +1,8 @@
 package megalodonte.base.theme;
 
 import javafx.scene.text.Font;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,6 +37,7 @@ import java.util.stream.Stream;
  * when the directory doesn't exist, so apps that don't ship custom fonts pay no cost.
  */
 public final class FontLoader {
+    private static final Logger log = LoggerFactory.getLogger(FontLoader.class);
 
     /** Conventional classpath resource directory client apps should place their fonts under. */
     public static final String DEFAULT_FONTS_DIRECTORY = "assets/fonts";
@@ -61,6 +64,7 @@ public final class FontLoader {
     public static int loadAll(String resourceDirectory) {
         ClassLoader classLoader = resolveClassLoader();
         String normalized = normalize(resourceDirectory);
+        log.debug("Scanning for fonts in '{}'", normalized);
 
         try {
             Enumeration<URL> roots = classLoader.getResources(normalized);
@@ -68,9 +72,10 @@ public final class FontLoader {
             while (roots.hasMoreElements()) {
                 loaded += loadFromRoot(roots.nextElement(), normalized);
             }
+            log.debug("Font scan complete: {} font(s) loaded from '{}'", loaded, normalized);
             return loaded;
         } catch (IOException e) {
-            System.err.println("[FontLoader] Failed to resolve fonts directory '" + normalized + "': " + e.getMessage());
+            log.error("Failed to resolve fonts directory '{}': {}", normalized, e.getMessage());
             return 0;
         }
     }
@@ -96,12 +101,12 @@ public final class FontLoader {
                 case "file" -> loadFromDirectory(Path.of(root.toURI()));
                 case "jar" -> loadFromJar(root, resourceDirectory);
                 default -> {
-                    System.err.println("[FontLoader] Unsupported resource protocol '" + root.getProtocol() + "' for " + root);
+                    log.warn("Unsupported resource protocol '{}' for {}", root.getProtocol(), root);
                     yield 0;
                 }
             };
         } catch (URISyntaxException e) {
-            System.err.println("[FontLoader] Invalid fonts directory URL '" + root + "': " + e.getMessage());
+            log.error("Invalid fonts directory URL '{}': {}", root, e.getMessage());
             return 0;
         }
     }
@@ -109,6 +114,7 @@ public final class FontLoader {
     private static int loadFromDirectory(Path dir) {
         if (!Files.isDirectory(dir)) return 0;
 
+        log.debug("Loading fonts from directory: {}", dir);
         try (Stream<Path> walk = Files.walk(dir)) {
             return (int) walk
                     .filter(Files::isRegularFile)
@@ -116,16 +122,18 @@ public final class FontLoader {
                     .filter(FontLoader::loadFontFile)
                     .count();
         } catch (IOException e) {
-            System.err.println("[FontLoader] Failed to scan fonts directory '" + dir + "': " + e.getMessage());
+            log.error("Failed to scan fonts directory '{}': {}", dir, e.getMessage());
             return 0;
         }
     }
 
     private static boolean loadFontFile(Path file) {
         try (InputStream in = Files.newInputStream(file)) {
-            return Font.loadFont(in, 12) != null;
+            boolean loaded = Font.loadFont(in, 12) != null;
+            if (loaded) log.debug("Registered font: {}", file.getFileName());
+            return loaded;
         } catch (IOException e) {
-            System.err.println("[FontLoader] Failed to load font '" + file + "': " + e.getMessage());
+            log.error("Failed to load font '{}': {}", file, e.getMessage());
             return false;
         }
     }
@@ -136,6 +144,7 @@ public final class FontLoader {
             if (!(connection instanceof JarURLConnection jarConnection)) return 0;
 
             try (JarFile jarFile = jarConnection.getJarFile()) {
+                log.debug("Loading fonts from jar: {}", root);
                 int loaded = 0;
                 Enumeration<JarEntry> entries = jarFile.entries();
                 while (entries.hasMoreElements()) {
@@ -145,15 +154,18 @@ public final class FontLoader {
                     if (!hasSupportedExtension(entry.getName())) continue;
 
                     try (InputStream in = jarFile.getInputStream(entry)) {
-                        if (Font.loadFont(in, 12) != null) loaded++;
+                        if (Font.loadFont(in, 12) != null) {
+                            loaded++;
+                            log.debug("Registered font from jar: {}", entry.getName());
+                        }
                     } catch (IOException e) {
-                        System.err.println("[FontLoader] Failed to load font '" + entry.getName() + "': " + e.getMessage());
+                        log.error("Failed to load font '{}' from jar: {}", entry.getName(), e.getMessage());
                     }
                 }
                 return loaded;
             }
         } catch (IOException e) {
-            System.err.println("[FontLoader] Failed to open jar for fonts scan: " + e.getMessage());
+            log.error("Failed to open jar for fonts scan: {}", e.getMessage());
             return 0;
         }
     }

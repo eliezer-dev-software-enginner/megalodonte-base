@@ -4,10 +4,10 @@ public interface ScreenComponent {
     Component render();
     
     default void onMount() {
-        // Implementação vazia - método opcional
+        // Empty implementation — optional method
     }
 
     default void onDestroy() {
-        // Implementação vazia - método opcional
+        // Empty implementation — optional method
     }
 }

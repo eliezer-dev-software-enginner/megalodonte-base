@@ -41,16 +41,16 @@ public abstract class Component implements ComponentInterface<Component> {
             throw new IllegalArgumentException("Node can not be null");
         }
 
-        // Wrapper component para um Node JavaFX existente
+        // Wrapper component for an existing JavaFX Node
         return new Component(node) {
             @Override
             public Node getJavaFxNode() {
-                return node; // Retorna o node original
+                return node; // Returns the original node
             }
 
             @Override
             public Component fromJavaFxNode(Node newNode) {
-                return CreateFromJavaFxNode(newNode); // Delega para o método estático
+                return CreateFromJavaFxNode(newNode); // Delegates to the static method
             }
         };
     }

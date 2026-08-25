@@ -1,5 +1,20 @@
 # Decisões Arquiteturais
 
+## 2026-08-25 — SLF4J logging on key lifecycle points
+
+**Problem**: No structured logging in the framework. Errors and lifecycle events were either silent or used `System.err.println` inconsistently.
+
+**Decision**:
+1. Added `org.slf4j:slf4j-api:2.0.17` as a dependency (facade only — binding is the consuming app's responsibility).
+2. Added `Logger` to: `MegalodonteApp`, `Bootstrap`, `ThemeManager`, `FontLoader`, `Async`, `Scope`.
+3. Log levels: `INFO` for lifecycle events (launch, bootstrap dispatch, theme set), `DEBUG` for detailed flow (font loading details, scope cancellation), `WARN` for recoverable issues, `ERROR` for failures.
+4. Converted existing `System.err.println` calls in `FontLoader` to SLF4J.
+5. All logs are in English.
+6. Translated all remaining Portuguese code comments to English across the codebase.
+7. Added rule to `AI_RULES.md`: comments always in English, add useful comments on complex code (race conditions, workarounds, non-obvious decisions, platform APIs).
+
+**Files modified**: `MegalodonteApp.java`, `Bootstrap.java`, `ThemeManager.java`, `FontLoader.java`, `Async.java`, `Scope.java`, `ErrorReporter.java`, `Context.java`, `LinuxDesktopEntry.java`, `ScreenComponent.java`, `Component.java`, `AI_RULES.md`
+
 ## 2026-07-24 — Carregamento de fontes customizadas (FontLoader + convenção assets/fonts)
 
 **Problema**: `ThemeTypography` ganhou um campo `fontFamily`, mas pra uma fonte custom

@@ -2,14 +2,18 @@ package megalodonte.base.theme;
 
 import javafx.scene.Scene;
 import megalodonte.base.state.State;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class ThemeManager {
+    private static final Logger log = LoggerFactory.getLogger(ThemeManager.class);
     private static final State<ThemeInterface> currentTheme = new State<>(null);
 
     public static void setTheme(ThemeInterface theme) {
+        log.info("Theme set to {}", theme.getClass().getSimpleName());
         currentTheme.set(theme);
     }
 
@@ -42,6 +46,7 @@ public class ThemeManager {
         String fontFamily = theme.typography().fontFamily();
         if (fontFamily == null || fontFamily.isBlank()) return;
 
+        log.debug("Applying font family '{}' to scene", fontFamily);
         String css = ".root { -fx-font-family: \"" + fontFamily.replace("\"", "\\\"") + "\"; }";
         String dataUri = "data:text/css;base64," + Base64.getEncoder().encodeToString(css.getBytes(StandardCharsets.UTF_8));
 

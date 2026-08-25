@@ -1,61 +1,68 @@
 package megalodonte.base.async;
 
 import megalodonte.application.ErrorReporter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Vínculo de cancelamento entre trabalho assíncrono ({@link Async#Run}) e o ciclo de vida de
- * quem o iniciou (uma tela, uma ViewModel). Resolve a mesma classe de corrida que
- * {@code viewModelScope}/{@code DisposableEffect} resolvem no Jetpack Compose: cancelar é
- * síncrono e barato (uma flag), mas o trabalho em si só sabe que foi cancelado quando checa —
- * por isso {@link #run} e {@link #onCancel} existem, em vez de tentar interromper a força.
+ * Cancellation binding between async work ({@link Async#Run}) and the lifecycle of
+ * whoever initiated it (a screen, a ViewModel). Solves the same class of race that
+ * {@code viewModelScope}/{@code DisposableEffect} solve in Jetpack Compose: cancelling is
+ * synchronous and cheap (a flag), but the work itself only knows it was cancelled when it
+ * checks — hence {@link #run} and {@link #onCancel} exist, instead of trying to force-interrupt.
  * <p>
- * Uma instância cobre um único ciclo de vida (uma tela, uma ViewModel) e não é reutilizável
- * depois de cancelada.
+ * One instance covers a single lifecycle (a screen, a ViewModel) and is not reusable
+ * after being cancelled.
  */
 public final class Scope {
+    private static final Logger log = LoggerFactory.getLogger(Scope.class);
     private volatile boolean cancelled = false;
     private final List<Runnable> onCancelCallbacks = new ArrayList<>();
 
     /**
-     * Roda {@code task} numa thread virtual, mas só se o escopo ainda não tiver sido cancelado
-     * no instante em que a tarefa começa a executar. Se {@link #cancel()} já tiver rodado antes
-     * disso, {@code task} nem chega a ser chamada.
+     * Runs {@code task} on a virtual thread, but only if the scope hasn't been cancelled
+     * at the moment the task begins executing. If {@link #cancel()} has already run before
+     * that, {@code task} is never called.
      * <p>
-     * Isso fecha a corrida "onDestroy roda antes do Async.Run começar" — mas não sozinho a
-     * corrida "onDestroy roda no meio de task", que ainda depende de {@code task} checar
-     * {@link #isCancelled()} nos pontos certos (ex.: logo antes de abrir um recurso) ou registrar
-     * a limpeza via {@link #onCancel}.
+     * This closes the race "onDestroy runs before Async.Run starts" — but not on its own
+     * the race "onDestroy runs in the middle of task", which still depends on {@code task}
+     * checking {@link #isCancelled()} at the right points (e.g. right before opening a
+     * resource) or registering cleanup via {@link #onCancel}.
      */
     public void run(RunnableThrowing task) {
         Async.Run(() -> {
-            if (cancelled) return;
+            if (cancelled) {
+                log.debug("Scope already cancelled, skipping task");
+                return;
+            }
             task.run();
         });
     }
 
     /**
-     * Registra {@code cleanup} pra rodar quando o escopo for cancelado. Se já estiver cancelado
-     * no momento da chamada, roda {@code cleanup} imediatamente, na própria thread chamadora —
-     * cobre o caso em que o recurso terminou de ser adquirido depois que {@link #cancel()} já
-     * rodou (ex.: conexão que terminou de abrir depois que a tela já foi destruída).
+     * Registers {@code cleanup} to run when the scope is cancelled. If already cancelled
+     * at the time of the call, runs {@code cleanup} immediately on the calling thread —
+     * covers the case where the resource finished being acquired after {@link #cancel()}
+     * already ran (e.g. connection that finished opening after the screen was already
+     * destroyed).
      */
     public void onCancel(Runnable cleanup) {
-        boolean jaCancelado;
+        boolean alreadyCancelled;
         synchronized (onCancelCallbacks) {
-            jaCancelado = cancelled;
-            if (!jaCancelado) onCancelCallbacks.add(cleanup);
+            alreadyCancelled = cancelled;
+            if (!alreadyCancelled) onCancelCallbacks.add(cleanup);
         }
-        if (jaCancelado) runCleanup(cleanup);
+        if (alreadyCancelled) runCleanup(cleanup);
     }
 
     /**
-     * Cancela o escopo: {@link #isCancelled()} passa a retornar {@code true} e todo callback
-     * registrado via {@link #onCancel} roda agora, nessa mesma thread (síncrono, igual
-     * {@code onDestroy()} — cancelar é barato, o trabalho de limpeza em si é responsabilidade de
-     * cada callback).
+     * Cancels the scope: {@link #isCancelled()} starts returning {@code true} and all
+     * callbacks registered via {@link #onCancel} run now, on the same thread (synchronous,
+     * just like {@code onDestroy()} — cancelling is cheap, the actual cleanup work is
+     * each callback's responsibility).
      */
     public void cancel() {
         List<Runnable> callbacks;
@@ -65,6 +72,7 @@ public final class Scope {
             callbacks = new ArrayList<>(onCancelCallbacks);
             onCancelCallbacks.clear();
         }
+        log.debug("Scope cancelled, running {} cleanup callback(s)", callbacks.size());
         for (Runnable cleanup : callbacks) runCleanup(cleanup);
     }
 

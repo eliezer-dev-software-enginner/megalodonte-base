@@ -59,7 +59,7 @@ final class LinuxDesktopEntry {
                     NoDisplay=true
                     """.formatted(appName, iconFile, startupWmClass));
         } catch (IOException ignored) {
-            // best effort — nunca impede a aplicação de subir
+            // Best effort — never prevents the application from starting
         }
     }
 

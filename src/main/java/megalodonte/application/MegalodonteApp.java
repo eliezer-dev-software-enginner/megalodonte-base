@@ -1,11 +1,14 @@
 package megalodonte.application;
 
 import javafx.application.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public final class MegalodonteApp {
+    private static final Logger log = LoggerFactory.getLogger(MegalodonteApp.class);
 
     public enum Event{
         CloseRequest
@@ -26,8 +29,8 @@ public final class MegalodonteApp {
         currentContext = context;
     }
 
-    // Nova API: define o nome da aplicação antes do launch
     public static void appName(String name) {
+        log.debug("Application name set to '{}'", name);
         Bootstrap.appName = name;
     }
 
@@ -40,27 +43,32 @@ public final class MegalodonteApp {
      * overloads below) to also get a WM_CLASS unique to your app.
      */
     public static void appIcon(String classpathResourcePath) {
+        log.debug("Application icon set to '{}'", classpathResourcePath);
         Bootstrap.appIconResourcePath = classpathResourcePath;
     }
 
     public static void run(Consumer<Context> contextHandler, Consumer<Event> onEvent) {
+        log.info("Launching Megalodonte application");
         Bootstrap.handler = contextHandler;
         Bootstrap.eventHandler = onEvent;
         Application.launch(JavaFXHost.class);
     }
 
     public static void run(Consumer<Context> contextHandler) {
+        log.info("Launching Megalodonte application");
         Bootstrap.handler = contextHandler;
         Application.launch(JavaFXHost.class);
     }
 
     public static void run(String[] args, Consumer<Context> contextHandler, Consumer<Event> onEvent) {
+        log.info("Launching Megalodonte application with {} args", args.length);
         Bootstrap.handler = contextHandler;
         Bootstrap.eventHandler = onEvent;
         Application.launch(JavaFXHost.class, args);
     }
 
     public static void run(String[] args, Consumer<Context> contextHandler) {
+        log.info("Launching Megalodonte application with {} args", args.length);
         Bootstrap.handler = contextHandler;
         Application.launch(JavaFXHost.class, args);
     }
@@ -86,23 +94,27 @@ public final class MegalodonteApp {
      */
     public static void run(Class<? extends Application> appClass, String[] args,
                             Consumer<Context> contextHandler, Consumer<Event> onEvent) {
+        log.info("Launching Megalodonte application via {} with {} args", appClass.getSimpleName(), args.length);
         Bootstrap.handler = contextHandler;
         Bootstrap.eventHandler = onEvent;
         Application.launch(appClass, args);
     }
 
     public static void run(Class<? extends Application> appClass, String[] args, Consumer<Context> contextHandler) {
+        log.info("Launching Megalodonte application via {} with {} args", appClass.getSimpleName(), args.length);
         Bootstrap.handler = contextHandler;
         Application.launch(appClass, args);
     }
 
     public static void run(Class<? extends Application> appClass, Consumer<Context> contextHandler, Consumer<Event> onEvent) {
+        log.info("Launching Megalodonte application via {}", appClass.getSimpleName());
         Bootstrap.handler = contextHandler;
         Bootstrap.eventHandler = onEvent;
         Application.launch(appClass);
     }
 
     public static void run(Class<? extends Application> appClass, Consumer<Context> contextHandler) {
+        log.info("Launching Megalodonte application via {}", appClass.getSimpleName());
         Bootstrap.handler = contextHandler;
         Application.launch(appClass);
     }

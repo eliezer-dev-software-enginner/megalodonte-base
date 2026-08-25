@@ -11,7 +11,7 @@ public final class ErrorReporter {
 
     private ErrorReporter() {}
 
-    /** Chamado pelo app no bootstrap para plugar a UI de erro específica. */
+    /** Called by the app at bootstrap to plug in the specific error UI. */
     public static void register(Handler appHandler) {
         handler = appHandler;
     }
@@ -22,12 +22,12 @@ public final class ErrorReporter {
     }
 
     private static void defaultHandler(Throwable t) {
-        // fallback caso o app não registre nada — nunca deve quebrar silenciosamente
-        System.err.println("[ErrorReporter] Nenhum handler registrado. Erro: " + t.getMessage());
+        // Fallback when the app hasn't registered anything — must never fail silently
+        System.err.println("[ErrorReporter] No handler registered. Error: " + t.getMessage());
         t.printStackTrace();
     }
 
     private static void log(Throwable t) {
-        // gravação em arquivo, mesmo padrão do log de close que já existe no Main
+        // TODO: file logging, same pattern as the close log already in Main
     }
 }

@@ -10,6 +10,8 @@
 - Não criar arquivos desnecessários.
 - Não gerar comentários óbvios.
 - Priorizar simplicidade.
+- Comentários sempre em inglês.
+- Adicionar comentários úteis em código complexo (race conditions, workarounds, decisões não óbvias, APIs de plataforma).
 
 ## Antes de qualquer alteração
 - Ler este arquivo.
@@ -19,4 +21,4 @@
 
 ## Após realizar as alterações 
 - compile o código para garantir que o código funciona
-- faça commit: use padrões: feat, refactor, test ou clean
+- faça commit em inglês: use padrões: feat, refactor, test ou clean

@@ -54,7 +54,8 @@ public final class Context {
         ThemeManager.applyFontFamily(scene);
         stage.setScene(scene);
 
-        //após o stage.show() do Bootstrap executar. O onMount vai rodar com o stage já visível e a Scene já anexada.
+        // Runs after Bootstrap's stage.show(). onMount executes with the stage already
+        // visible and the Scene already attached.
         Platform.runLater(component::onMount);
         centerAfterLayoutSettles(stage);
     }
@@ -130,7 +131,7 @@ public final class Context {
             stage.getIcons().add(new Image(props.iconPath()));
         }
         stage.centerOnScreen();
-        // onMount já foi chamado dentro do Router.resolveWithStage()
+        // onMount was already called inside Router.resolveWithStage()
     }
 
     /**
