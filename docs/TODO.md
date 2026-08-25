@@ -17,4 +17,3 @@
 
 ## Pendências
 - Revisar componentes que usam `ThemeInterface` para garantir que `applyTheme` funciona com o novo `ThemeBorder` (radius agora está em `border().radiusMd()` em vez de `radius().md()`)
-- Consider publishing Javadoc HTML via GitHub Pages or as part of the release process

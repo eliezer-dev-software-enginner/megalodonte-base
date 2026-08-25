@@ -76,11 +76,18 @@ tasks.jar {
     }
 }
 
+tasks.register<Jar>("javadocJar") {
+    archiveBaseName.set("megalodonte-base")
+    archiveClassifier.set("javadoc")
+    from(tasks.javadoc)
+}
+
 // Configuração de Publicação (mantida)
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
+            artifact(tasks.named("javadocJar"))
             artifactId = "megalodonte-base"
         }
     }
