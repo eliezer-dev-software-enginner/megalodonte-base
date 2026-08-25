@@ -1,7 +1,16 @@
 package megalodonte.application;
 
+/**
+ * Central error handler for the framework. Unhandled exceptions from
+ * {@link megalodonte.base.async.Async} and {@link megalodonte.base.async.Scope}
+ * are routed here.
+ * <p>
+ * Applications should register a UI-specific handler via {@link #register} at
+ * bootstrap time. If none is registered, a fallback prints to stderr.
+ */
 public final class ErrorReporter {
 
+    /** Functional interface for error handling callbacks. */
     @FunctionalInterface
     public interface Handler {
         void onError(Throwable t);
@@ -11,11 +20,16 @@ public final class ErrorReporter {
 
     private ErrorReporter() {}
 
-    /** Called by the app at bootstrap to plug in the specific error UI. */
+    /** Registers the application-specific error handler. Called once at bootstrap. */
     public static void register(Handler appHandler) {
         handler = appHandler;
     }
 
+    /**
+     * Reports an error by logging it and delegating to the registered handler.
+     *
+     * @param t the throwable to report
+     */
     public static void handle(Throwable t) {
         log(t);
         handler.onError(t);

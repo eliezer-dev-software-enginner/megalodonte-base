@@ -8,19 +8,36 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+/**
+ * Global theme registry. Holds the active {@link ThemeInterface} and provides
+ * utility methods to apply theme-level styles (e.g. font family) to scenes.
+ * <p>
+ * Set the theme once at application startup:
+ * <pre>{@code
+ * ThemeManager.setTheme(new MyTheme());
+ * }</pre>
+ */
 public class ThemeManager {
     private static final Logger log = LoggerFactory.getLogger(ThemeManager.class);
     private static final State<ThemeInterface> currentTheme = new State<>(null);
 
+    /**
+     * Sets the active theme. Notifies all subscribers of the internal
+     * {@link State}, allowing components to reactively re-apply styles.
+     *
+     * @param theme the theme to activate
+     */
     public static void setTheme(ThemeInterface theme) {
         log.info("Theme set to {}", theme.getClass().getSimpleName());
         currentTheme.set(theme);
     }
 
+    /** Returns the currently active theme, or {@code null} if none has been set. */
     public static ThemeInterface theme() {
         return currentTheme.get();
     }
 
+    /** Returns the underlying {@link State} for reactive subscriptions. */
     public static State<ThemeInterface> state() {
         return currentTheme;
     }

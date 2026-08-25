@@ -8,6 +8,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
 
+/**
+ * Internal bootstrap that wires the JavaFX lifecycle to the Megalodonte framework.
+ * <p>
+ * Called by {@link MegalodonteApplication#start} once JavaFX is ready. Handles:
+ * <ol>
+ *   <li>App name and {@code .desktop} entry (Linux dev mode)</li>
+ *   <li>Custom font loading via {@link FontLoader}</li>
+ *   <li>{@link Context} creation and registration</li>
+ *   <li>Application handler invocation</li>
+ *   <li>Stage show</li>
+ * </ol>
+ */
 public final class Bootstrap {
     private static final Logger log = LoggerFactory.getLogger(Bootstrap.class);
 
@@ -18,6 +30,14 @@ public final class Bootstrap {
     public static String appName = null;
     public static String appIconResourcePath = null;
 
+    /**
+     * Main bootstrap entry point. Wires the stage, loads fonts, creates the context,
+     * invokes the application handler, and shows the stage.
+     *
+     * @param appClass the concrete {@link Application} class (determines WM_CLASS on Linux)
+     * @param stage    the primary JavaFX stage
+     * @param args     command-line arguments
+     */
     public static void dispatch(Class<? extends Application> appClass, Stage stage, String[] args) {
         log.info("Bootstrap dispatch starting for {}", appClass.getSimpleName());
 
@@ -80,6 +100,11 @@ public final class Bootstrap {
     }
 
 
+    /**
+     * Dispatches a framework event to the registered event handler.
+     *
+     * @param event the event to dispatch (e.g. {@link MegalodonteApp.Event#CloseRequest})
+     */
     public static void dispatchEvent(MegalodonteApp.Event event) {
         log.debug("Dispatching event: {}", event);
         if (eventHandler != null) {

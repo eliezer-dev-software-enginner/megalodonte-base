@@ -1,5 +1,17 @@
 # Decisões Arquiteturais
 
+## 2026-08-25 — Javadoc documentation for all project classes
+
+**Problem**: Most classes lacked Javadoc documentation, making the API hard to understand for new developers.
+
+**Decision**:
+1. Added Javadoc to all public classes, records, interfaces, and relevant methods across the codebase.
+2. Translated all remaining Portuguese comments to English (Animations.java had 15+ inline comments).
+3. Documented parameters with `@param`, return values with `@return`, and cross-references with `@link`.
+4. Records (ThemeColors, ThemeTypography, ThemeSpacing, ThemeBorder, RouteProps, RouteResult) got parameter-level documentation.
+
+**Files modified**: All `.java` files under `src/main/java/` (37 files total)
+
 ## 2026-08-25 — SLF4J logging on key lifecycle points
 
 **Problem**: No structured logging in the framework. Errors and lifecycle events were either silent or used `System.err.println` inconsistently.

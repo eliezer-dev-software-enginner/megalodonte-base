@@ -3,12 +3,17 @@ package megalodonte.base.theme;
 import megalodonte.base.scale.ScaleProvider;
 
 /**
- * @param fontFamily Name of the font family the application should use (e.g. "Roboto").
- *                    {@code null} means "don't override" — falls back to the platform's
- *                    default UI font. The theme only names the font; loading the actual
- *                    font file (if it's not already installed on the OS) is up to the
- *                    application, e.g. via {@code javafx.scene.text.Font.loadFont(...)}
- *                    at startup, before the family name becomes usable.
+ * Typography configuration for a theme. Defines font sizes for the type scale
+ * and an optional font family name. All sizes are automatically scaled by
+ * {@link ScaleProvider} to match the display DPI.
+ *
+ * @param fontFamily name of the font family (e.g. "Roboto"), or {@code null}
+ *                    to use the platform default. The actual font file must be
+ *                    loaded before this name becomes usable — see {@link FontLoader}.
+ * @param title      font size for titles (scaled)
+ * @param subtitle   font size for subtitles (scaled)
+ * @param body       font size for body text (scaled)
+ * @param small      font size for small/caption text (scaled)
  */
 public record ThemeTypography(String fontFamily, int title, int subtitle, int body, int small) {
 

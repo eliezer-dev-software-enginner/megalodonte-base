@@ -11,6 +11,11 @@ import javafx.scene.Node;
 import javafx.util.Duration;
 import megalodonte.base.components.Component;
 
+/**
+ * Pre-built animation utilities for components. Provides common transitions
+ * (fade, slide, scale, bounce, shake, etc.) that can be composed with
+ * {@link Component.Transition} for screen enter/exit animations.
+ */
 public class Animations {
 
     public static Animation rotate(Node node, double fromAngle, double toAngle, Duration duration) {
@@ -23,7 +28,7 @@ public class Animations {
     public static Animation rotate360(Node node) {
         return rotate(node, 0, 360, Duration.millis(500));
     }
-    /** Rotação livre entre dois ângulos. Útil para ícones de refresh, toggles, setas de expand/collapse. */
+    /** Free rotation between two angles. Useful for refresh icons, toggles, expand/collapse arrows. */
     public static Animation rotate(Component c, double fromAngle, double toAngle, Duration duration) {
         javafx.animation.RotateTransition rt = new javafx.animation.RotateTransition(duration, c.getJavaFxNode());
         rt.setFromAngle(fromAngle);
@@ -31,7 +36,7 @@ public class Animations {
         return rt;
     }
 
-    /** Giro completo de 360°. Bom para ícone de "atualizar"/loading ao clicar. */
+    /** Full 360-degree spin. Good for "refresh"/loading icon on click. */
     public static Animation rotate360(Component c) {
         return rotate(c, 0, 360, Duration.millis(500));
     }
@@ -56,7 +61,7 @@ public class Animations {
         return p;
     }
 
-    /** Fade puro, sem deslocamento. Bom para trocas de conteúdo neutras (texto, ícone). */
+    /** Pure fade without displacement. Good for neutral content swaps (text, icon). */
     public static Animation fade(Component c, boolean entering) {
         return fade(c, entering, Duration.ZERO);
     }
@@ -74,7 +79,7 @@ public class Animations {
         return ft;
     }
 
-    /** Desliza de/para cima — útil para dropdowns, menus, notificações. */
+    /** Slides from/to above — useful for dropdowns, menus, notifications. */
     public static Animation fadeSlideDown(Component c, boolean entering) {
         return fadeSlideDown(c, entering, Duration.ZERO);
     }
@@ -96,7 +101,7 @@ public class Animations {
         return p;
     }
 
-    /** Desliza de/para baixo — útil para toasts/popups que sobem da parte inferior da tela. */
+    /** Slides from/to below — useful for toasts/popups rising from the bottom of the screen. */
     public static Animation fadeSlideUp(Component c, boolean entering) {
         return fadeSlideUp(c, entering, Duration.ZERO);
     }
@@ -118,7 +123,7 @@ public class Animations {
         return p;
     }
 
-    /** Cresce/encolhe suavemente a partir do centro, combinado com fade. Bom para modais/cards. */
+    /** Smooth scale up/down from center, combined with fade. Good for modals/cards. */
     public static Animation fadeScale(Component c, boolean entering) {
         return fadeScale(c, entering, Duration.millis(180), Duration.ZERO);
     }
@@ -146,7 +151,7 @@ public class Animations {
         return p;
     }
 
-    /** "Pop" mais enfático — passa de um pouco maior que o normal antes de assentar. Bom para chamar atenção (badges, alertas). */
+    /** Emphatic "pop" — overshoots slightly before settling. Good for drawing attention (badges, alerts). */
     public static Animation pop(Component c, boolean entering) {
         return pop(c, entering, Duration.ZERO);
     }
@@ -170,7 +175,7 @@ public class Animations {
         return p;
     }
 
-    /** Slide horizontal mais longo, sem fade — útil para trocas de tela tipo carrossel/wizard. */
+    /** Longer horizontal slide without fade — useful for carousel/wizard screen transitions. */
     public static Animation slideHorizontal(Component c, boolean entering) {
         return slideHorizontal(c, entering, Duration.ZERO);
     }
@@ -188,7 +193,7 @@ public class Animations {
         return tt;
     }
 
-    /** Tremor horizontal — útil para erros de validação, senhas erradas, alerts. */
+    /** Horizontal shake — useful for validation errors, wrong passwords, alerts. */
     public static Animation shake(Component c) {
         return shake(c, Duration.ZERO);
     }
@@ -214,7 +219,7 @@ public class Animations {
         return seq;
     }
 
-    /** Bounce vertical — sobe e cai com easing. Bom para badges, notificações. */
+    /** Vertical bounce — rises and falls with easing. Good for badges, notifications. */
     public static Animation bounce(Component c) {
         return bounce(c, Duration.ZERO);
     }
@@ -237,7 +242,7 @@ public class Animations {
         return seq;
     }
 
-    /** Pulso de escala (heartbeat) — cresce e volta. Bom para botões de ação, ícones de like. */
+    /** Scale pulse (heartbeat) — grows and returns. Good for action buttons, like icons. */
     public static Animation pulse(Component c) {
         return pulse(c, 2, Duration.millis(150), Duration.ZERO);
     }
@@ -264,7 +269,7 @@ public class Animations {
         return st;
     }
 
-    /** Flash de opacidade — pisca rápido. Bom para alertas urgentes, novas mensagens. */
+    /** Opacity flash — quick blink. Good for urgent alerts, new messages. */
     public static Animation flash(Component c) {
         return flash(c, Duration.ZERO);
     }
@@ -287,7 +292,7 @@ public class Animations {
         return seq;
     }
 
-    /** Wobble — oscilação lateral com fade out. Bom para elementos sendo descartados. */
+    /** Wobble — lateral oscillation with fade out. Good for elements being dismissed. */
     public static Animation wobble(Component c) {
         return wobble(c, Duration.ZERO);
     }
@@ -323,7 +328,7 @@ public class Animations {
         return seq;
     }
 
-    /** Slide in da esquerda — útil para menus laterais, drawers. */
+    /** Slide in from the left — useful for side menus, drawers. */
     public static Animation slideInLeft(Component c, boolean entering) {
         return slideInLeft(c, entering, Duration.ZERO);
     }
@@ -345,7 +350,7 @@ public class Animations {
         return p;
     }
 
-    /** Slide in da direita — útil para painéis de detalhe, sidebar. */
+    /** Slide in from the right — useful for detail panels, sidebar. */
     public static Animation slideInRight(Component c, boolean entering) {
         return slideInRight(c, entering, Duration.ZERO);
     }
@@ -368,9 +373,9 @@ public class Animations {
     }
 
     /**
-     * Entrada suave para grids de cards: fade + leve subida + leve escala, com
-     * easing (EASE_OUT) e duração mais longa (450ms por padrão) que as demais
-     * combinações fade+slide daqui — pensada pra não parecer um "pop" seco.
+     * Gentle entrance for card grids: fade + slight rise + slight scale, with
+     * EASE_OUT easing and longer duration (450ms by default) — designed to not
+     * feel like a harsh "pop".
      */
     public static Animation riseIn(Component c, boolean entering) {
         return riseIn(c, entering, Duration.millis(450));

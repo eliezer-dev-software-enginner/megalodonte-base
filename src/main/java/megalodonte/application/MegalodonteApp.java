@@ -7,19 +7,35 @@ import org.slf4j.LoggerFactory;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+/**
+ * Main entry point for Megalodonte applications. Provides static factory methods
+ * to launch a JavaFX application with the framework's bootstrap lifecycle.
+ * <p>
+ * Typical usage:
+ * <pre>{@code
+ * MegalodonteApp.appName("My App");
+ * MegalodonteApp.run(MyHost.class, args, context -> {
+ *     context.useRouter(AppRouter.build()).start();
+ * });
+ * }</pre>
+ */
 public final class MegalodonteApp {
     private static final Logger log = LoggerFactory.getLogger(MegalodonteApp.class);
 
+    /** Framework-level events dispatched to the application. */
     public enum Event{
+        /** Fired when the user requests closing the application window. */
         CloseRequest
     }
 
     private static Context currentContext;
 
+    /** Returns the application context, available after {@link #run} has been called. */
     public static Context getCurrentContext() {
         return currentContext;
     }
 
+    /** Returns the command-line arguments passed to the application. */
     public static String[] getArgs() {
         var ctx = currentContext;
         return ctx != null ? ctx.getArgs() : new String[0];
@@ -29,6 +45,11 @@ public final class MegalodonteApp {
         currentContext = context;
     }
 
+    /**
+     * Sets the application display name. Used by {@link LinuxDesktopEntry} for the
+     * dev-mode {@code .desktop} file and by {@link Bootstrap} for
+     * {@code javafx.application.name}. Must be called before {@link #run}.
+     */
     public static void appName(String name) {
         log.debug("Application name set to '{}'", name);
         Bootstrap.appName = name;
@@ -47,6 +68,12 @@ public final class MegalodonteApp {
         Bootstrap.appIconResourcePath = classpathResourcePath;
     }
 
+    /**
+     * Launches the application using the default {@link JavaFXHost} launcher.
+     *
+     * @param contextHandler called once during bootstrap with the application {@link Context}
+     * @param onEvent        called for framework events (e.g. {@link Event#CloseRequest})
+     */
     public static void run(Consumer<Context> contextHandler, Consumer<Event> onEvent) {
         log.info("Launching Megalodonte application");
         Bootstrap.handler = contextHandler;
@@ -54,12 +81,20 @@ public final class MegalodonteApp {
         Application.launch(JavaFXHost.class);
     }
 
+    /** @see #run(Consumer, Consumer) */
     public static void run(Consumer<Context> contextHandler) {
         log.info("Launching Megalodonte application");
         Bootstrap.handler = contextHandler;
         Application.launch(JavaFXHost.class);
     }
 
+    /**
+     * Launches the application with command-line arguments.
+     *
+     * @param args            command-line arguments forwarded to JavaFX
+     * @param contextHandler  called once during bootstrap with the application {@link Context}
+     * @param onEvent         called for framework events
+     */
     public static void run(String[] args, Consumer<Context> contextHandler, Consumer<Event> onEvent) {
         log.info("Launching Megalodonte application with {} args", args.length);
         Bootstrap.handler = contextHandler;
@@ -67,6 +102,7 @@ public final class MegalodonteApp {
         Application.launch(JavaFXHost.class, args);
     }
 
+    /** @see #run(String[], Consumer, Consumer) */
     public static void run(String[] args, Consumer<Context> contextHandler) {
         log.info("Launching Megalodonte application with {} args", args.length);
         Bootstrap.handler = contextHandler;

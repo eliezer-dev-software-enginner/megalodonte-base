@@ -16,6 +16,13 @@ import megalodonte.base.scale.ScaleProvider;
 import megalodonte.base.theme.ThemeManager;
 
 
+/**
+ * Application context available to the startup handler. Provides access to the
+ * primary {@link Stage}, command-line arguments, and view/navigation methods.
+ * <p>
+ * Created once by {@link Bootstrap#dispatch} and passed to the application handler
+ * via {@link MegalodonteApp#run}.
+ */
 public final class Context {
 
     private final Stage stage;
@@ -31,14 +38,23 @@ public final class Context {
         this(stage, new String[0]);
     }
 
+    /** Returns the command-line arguments passed to the application. */
     public String[] getArgs() {
         return args;
     }
 
+    /** Returns the primary JavaFX stage managed by this context. */
     public Stage javafxStage() {
         return stage;
     }
 
+    /**
+     * Instantiates a {@link ScreenComponent} by class and renders it as the current view.
+     * Creates a new {@link Scene} with the default dimensions and centers the stage.
+     *
+     * @param componentClass the screen component class to instantiate
+     * @throws RuntimeException if instantiation fails
+     */
     public void useView(Class<? extends  ScreenComponent> componentClass) {
         try {
             ScreenComponent component = componentClass.getDeclaredConstructor().newInstance();
@@ -48,6 +64,12 @@ public final class Context {
         }
     }
 
+    /**
+     * Renders a {@link ScreenComponent} as the current view. Creates a new {@link Scene},
+     * applies the theme font, sets it on the stage, and schedules {@code onMount}.
+     *
+     * @param component the screen component to render
+     */
     public void useView(ScreenComponent component) {
        var parentLayout = (Parent) component.render().getJavaFxNode();
         var scene = new Scene(parentLayout, width, height);
@@ -117,6 +139,13 @@ public final class Context {
         settle.play();
     }
 
+    /**
+     * Renders a route result, applying its {@link RouteProps} (dimensions, title, icon,
+     * resizability) to the stage. Does not call {@code onMount} — that is handled by
+     * the router.
+     *
+     * @param routeResult the resolved route to display
+     */
     public void useView(RouteResult routeResult) {
         var props = routeResult.props();
         var parentLayout = (Parent) routeResult.view().getJavaFxNode();
@@ -145,6 +174,12 @@ public final class Context {
         stage.setScene(scene);
     }
 
+    /**
+     * Binds a router to this context and returns a {@link RouterBuilder} to start navigation.
+     *
+     * @param router the router to bind
+     * @return a builder to call {@link RouterBuilder#start()} on
+     */
     public RouterBuilder useRouter(RouterBase router) {
         router.bind(this);
         return new RouterBuilder(router);

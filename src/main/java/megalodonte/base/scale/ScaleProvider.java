@@ -2,6 +2,14 @@ package megalodonte.base.scale;
 
 import javafx.stage.Screen;
 
+/**
+ * Display DPI scaling utility. Detects the screen's output scale factor and
+ * applies it to pixel values so the UI looks consistent across different
+ * display densities.
+ * <p>
+ * The scale factor is lazily detected on first access and cached. It can be
+ * overridden via {@link #setScale(double)} for testing or accessibility.
+ */
 public final class ScaleProvider {
 
     private static Double scaleFactor = null;
@@ -9,12 +17,14 @@ public final class ScaleProvider {
 
     private ScaleProvider() {}
 
+    /** Initializes the scale factor (no-op if already detected). */
     public static void initialize() {
         if (scaleFactor == null) {
             scaleFactor = detectScale();
         }
     }
 
+    /** Returns the detected or overridden scale factor. */
     public static double factor() {
         if (scaleFactor == null) {
             scaleFactor = detectScale();
@@ -22,18 +32,26 @@ public final class ScaleProvider {
         return scaleFactor;
     }
 
+    /** Scales an integer value by the current factor. */
     public static int scale(int value) {
         return (int) Math.round(value * factor());
     }
 
+    /** Scales a double value by the current factor. */
     public static double scale(double value) {
         return value * factor();
     }
 
+    /**
+     * Overrides the detected scale factor. Clamped to [0.25, 4.0].
+     *
+     * @param override the custom scale factor
+     */
     public static void setScale(double override) {
         scaleFactor = Math.max(0.25, Math.min(override, 4.0));
     }
 
+    /** Clears the cached scale factor, forcing re-detection on next access. */
     public static void reset() {
         scaleFactor = null;
     }
