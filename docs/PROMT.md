@@ -29,4 +29,4 @@ Após cada tarefa:
 - Mantenha os arquivos concisos.
 
 Prompt:
-Quero que você simplifique o tema (Theme) e mude seu nome para ThemeInterface. E veja se os componentes dele faz sentido. Por exemplo temos ThemeRadius isolado que ao meu ver já e um erro de arquitetura. Enfim pense em uma arquitetura que faça sentido e se possível remover coisas desnecessárias. Quero coisas que são principais em temas.
+Faça logs de pontos importantes na aplicação em inglês.
