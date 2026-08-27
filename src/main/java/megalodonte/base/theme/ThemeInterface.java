@@ -8,6 +8,7 @@ package megalodonte.base.theme;
  *     public ThemeColors colors() { return new ThemeColors(...); }
  *     public ThemeTypography typography() { return new ThemeTypography(...); }
  *     public ThemeSpacing spacing() { return new ThemeSpacing(...); }
+ *     public ThemePadding padding() { return new ThemePadding(...); }
  *     public ThemeBorder border() { return new ThemeBorder(...); }
  * }
  *
@@ -19,5 +20,6 @@ public interface ThemeInterface {
     ThemeColors colors();
     ThemeTypography typography();
     ThemeSpacing spacing();
+    ThemePadding padding();
     ThemeBorder border();
 }
