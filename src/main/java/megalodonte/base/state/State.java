@@ -16,7 +16,7 @@ import java.util.function.Predicate;
  */
 public class State<T> implements ReadableState<T> {
 
-    private T value;
+    private volatile T value;
     private final List<Consumer<T>> listeners = new ArrayList<>();
 
     /** Creates a new state with the given initial value. */
