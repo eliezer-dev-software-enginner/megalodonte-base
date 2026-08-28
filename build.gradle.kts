@@ -24,7 +24,7 @@ java {
 // 🛑 2. CONFIGURA O PLUGIN DO JAVAFX
 javafx {
     // Define a versão do JavaFX para ser usada em todos os módulos
-    version = "17.0.10" // Mantida a versão 17.0.10.
+    version = "25.0.1"
 
     // Lista os módulos JavaFX que sua biblioteca PRECISA para compilar.
     // O plugin adiciona automaticamente a dependência para a sua plataforma de build.
