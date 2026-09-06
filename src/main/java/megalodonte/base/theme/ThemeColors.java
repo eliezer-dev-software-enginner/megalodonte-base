@@ -15,6 +15,9 @@ package megalodonte.base.theme;
  * @param selection   text/element selection highlight color
  * @param focusRing   focus indicator color
  * @param hover       hover state background color
+ * @param success     semantic color for positive/success states and actions
+ * @param warning     semantic color for cautionary/warning states and actions
+ * @param danger      semantic color for destructive/error states and actions
  */
 public record ThemeColors(
         String background,
@@ -27,5 +30,8 @@ public record ThemeColors(
         String placeholder,
         String selection,
         String focusRing,
-        String hover
+        String hover,
+        String success,
+        String warning,
+        String danger
 ) {}
