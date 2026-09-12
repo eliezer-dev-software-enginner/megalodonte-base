@@ -1,6 +1,7 @@
 package megalodonte.base.route.v2;
 
 import javafx.scene.Scene;
+import megalodonte.base.async.RunnableThrowing;
 import megalodonte.base.async.Scope;
 import megalodonte.base.route.RouteNotFoundException;
 import megalodonte.base.route.RouteProps;
@@ -49,7 +50,7 @@ public interface ScreenContextInterface {
      * Cobre tanto o caso onde ela ainda não existe (aguarda) quanto
      * o caso onde já está disponível (executa imediatamente).
      */
-     void whenReady(Consumer<ScreenContextInterface> callback);
+     void whenReady(RunnableThrowing callback);
 
     /**
      * Get current JavaFX scene of this screen

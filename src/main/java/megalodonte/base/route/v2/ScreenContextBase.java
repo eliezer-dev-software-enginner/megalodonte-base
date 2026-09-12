@@ -6,6 +6,8 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import megalodonte.application.ErrorReporter;
+import megalodonte.base.async.RunnableThrowing;
 import megalodonte.base.async.Scope;
 import megalodonte.base.route.RouteProps;
 import megalodonte.base.route.RouteResult;
@@ -139,17 +141,29 @@ public abstract class ScreenContextBase implements ScreenContextInterface {
     }
 
     @Override
-    public void whenReady(Consumer<ScreenContextInterface> callback) {
+    public void whenReady(RunnableThrowing runnableThrowing) {
         Scene current = selfStage.getScene();
         if (current != null) {
             log.debug("Scene already available, executing callback immediately");
-            callback.accept(this);
+            try {
+                runnableThrowing.run();
+            } catch (Throwable t) {
+                log.error("Async task failed", t);
+                ErrorReporter.handle(t);
+            }
             return;
         }
 
         log.debug("Scene not yet available, registering listener");
         selfStage.sceneProperty().addListener((_, _, newScene) -> {
-            if (newScene != null) callback.accept(this);
+            if (newScene != null) {
+                try {
+                    runnableThrowing.run();
+                } catch (Throwable t) {
+                    log.error("Async task failed", t);
+                    ErrorReporter.handle(t);
+                }
+            }
         });
     }
 
