@@ -49,7 +49,7 @@ public interface ScreenContextInterface {
      * Cobre tanto o caso onde ela ainda não existe (aguarda) quanto
      * o caso onde já está disponível (executa imediatamente).
      */
-     void whenReady(Consumer<Scene> callback);
+     void whenReady(Consumer<ScreenContextInterface> callback);
 
     /**
      * Get current JavaFX scene of this screen

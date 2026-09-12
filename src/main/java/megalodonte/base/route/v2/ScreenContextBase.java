@@ -139,17 +139,17 @@ public abstract class ScreenContextBase implements ScreenContextInterface {
     }
 
     @Override
-    public void whenReady(Consumer<Scene> callback) {
+    public void whenReady(Consumer<ScreenContextInterface> callback) {
         Scene current = selfStage.getScene();
         if (current != null) {
             log.debug("Scene already available, executing callback immediately");
-            callback.accept(current);
+            callback.accept(this);
             return;
         }
 
         log.debug("Scene not yet available, registering listener");
         selfStage.sceneProperty().addListener((_, _, newScene) -> {
-            if (newScene != null) callback.accept(newScene);
+            if (newScene != null) callback.accept(this);
         });
     }
 

@@ -56,11 +56,6 @@ public final class KeyBind {
         scene.addEventFilter(KeyEvent.KEY_PRESSED, this::handle);
     }
 
-    /** Attaches the key bindings to a components's key event filter. */
-    public void attach(Component component) {
-       component.getJavaFxNode().addEventFilter(KeyEvent.KEY_PRESSED, this::handle);
-    }
-
     private void handle(KeyEvent e) {
         Set<Modifier> pressed = activeModifiers(e);
         var combo = new Combo(e.getCode(), pressed);
