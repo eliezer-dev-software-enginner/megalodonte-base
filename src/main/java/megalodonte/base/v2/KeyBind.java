@@ -1,15 +1,17 @@
-package megalodonte.base;
+package megalodonte.base.v2;
 
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import megalodonte.base.components.Component;
+import megalodonte.base.route.v2.ScreenContextInterface;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.Arrays;
 
 /**
  * Keyboard shortcut binding utility. Registers key combinations (with optional
@@ -25,7 +27,6 @@ import java.util.Arrays;
  * }</pre>
  */
 
-@Deprecated(forRemoval = true, since = "12/09/2026")
 public final class KeyBind {
 
     /** Available keyboard modifiers. */
@@ -49,14 +50,15 @@ public final class KeyBind {
         return this;
     }
 
-    /** Attaches the key bindings to a scene's key event filter. */
-    public void attach(Scene scene) {
+    /** Attaches the key bindings to a screen context's key event filter. */
+    public void attach(ScreenContextInterface screenContext) {
+        Scene scene = screenContext.getJavaFXScene();
         scene.addEventFilter(KeyEvent.KEY_PRESSED, this::handle);
     }
 
-    /** Attaches the key bindings to a node's key event filter. */
-    public void attach(Node node) {
-        node.addEventFilter(KeyEvent.KEY_PRESSED, this::handle);
+    /** Attaches the key bindings to a components's key event filter. */
+    public void attach(Component component) {
+       component.getJavaFxNode().addEventFilter(KeyEvent.KEY_PRESSED, this::handle);
     }
 
     private void handle(KeyEvent e) {

@@ -1,5 +1,6 @@
 package megalodonte.base.route;
 
+import javafx.stage.Stage;
 import megalodonte.application.Context;
 
 /**
@@ -12,4 +13,10 @@ public interface RouterBase {
 
     /** Returns the entrypoint route result for the default route. */
     RouteResult entrypoint();
+
+    RouteResult navigateOnStage(String path, Stage selfStage);
+
+    RouteResult navigateAndCloseOthers(String path);
+
+    Stage mainStage();
 }
