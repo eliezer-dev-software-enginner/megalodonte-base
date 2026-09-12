@@ -137,4 +137,20 @@ public abstract class ScreenContextBase implements ScreenContextInterface {
     public Scene getJavaFXScene() {
         return selfStage().getScene();
     }
+
+    @Override
+    public void whenReady(Consumer<Scene> callback) {
+        Scene current = selfStage.getScene();
+        if (current != null) {
+            log.debug("Scene already available, executing callback immediately");
+            callback.accept(current);
+            return;
+        }
+
+        log.debug("Scene not yet available, registering listener");
+        selfStage.sceneProperty().addListener((_, _, newScene) -> {
+            if (newScene != null) callback.accept(newScene);
+        });
+    }
+
 }
