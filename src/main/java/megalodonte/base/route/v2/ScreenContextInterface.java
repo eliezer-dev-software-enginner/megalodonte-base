@@ -1,12 +1,14 @@
 package megalodonte.base.route.v2;
 
 import javafx.scene.Scene;
+import javafx.stage.Stage;
 import megalodonte.base.async.RunnableThrowing;
 import megalodonte.base.async.Scope;
 import megalodonte.base.route.RouteNotFoundException;
 import megalodonte.base.route.RouteProps;
 import megalodonte.base.route.RouterBase;
 
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -56,6 +58,17 @@ public interface ScreenContextInterface {
      * @return {@link Scene}
      */
     Scene getJavaFXScene();
+
+    /**
+     * Route parameters for the current navigation, resolved from dynamic segments
+     * ({@code ${param}}) — e.g. for path {@code "product/${id}"}: {@code { "id" = "123" }}.
+     */
+    Map<String, String> getParams();
+
+    /**
+     * The JavaFX {@link Stage} this screen is currently attached to.
+     */
+    Stage selfStage();
 
     /**
      * Spawns a new window for the given route.
