@@ -41,7 +41,7 @@ dependencies {
 ```java
 import megalodonte.application.MegalodonteApp;
 import megalodonte.application.Context;
-import megalodonte.router.v4.Router;
+import megalodonte.router.v5.Router;
 
 public class Main {
 
@@ -66,7 +66,7 @@ public class Main {
 import megalodonte.application.MegalodonteApp;
 import megalodonte.application.MegalodonteApplication;
 import megalodonte.application.Context;
-import megalodonte.router.v4.Router;
+import megalodonte.router.v5.Router;
 import my_app.AppRouter;
 
 public class Main {
@@ -99,8 +99,10 @@ public class Main {
 ### AppRouter.java
 
 ```java
+import megalodonte.base.route.Route;
 import megalodonte.base.route.RouteProps;
-import megalodonte.router.v4.Router;
+import megalodonte.base.route.RouteTable;
+import megalodonte.router.v5.Router;
 import my_app.screens.HomeScreen;
 import my_app.screens.SettingsScreen;
 import my_app.screens.ProductsScreen;
@@ -108,20 +110,20 @@ import my_app.screens.ProductsScreen;
 public class AppRouter {
     public static Router build() {
         var routes = Set.of(
-            new Router.Route("home", ctx -> new HomeScreen(ctx),
+            new Route("home", ctx -> new HomeScreen(ctx),
                 new RouteProps(900, 550, null, false)),
 
-            new Router.Route("settings", ctx -> new SettingsScreen(ctx),
+            new Route("settings", ctx -> new SettingsScreen(ctx),
                 new RouteProps(900, 550, "Settings", true)),
 
-            new Router.Route("products", ctx -> new ProductsScreen(ctx),
+            new Route("products", ctx -> new ProductsScreen(ctx),
                 new RouteProps(900, 550, "Products", true)),
 
-            new Router.Route("product/${id}", ctx -> new ProductDetails(ctx),
+            new Route("product/${id}", ctx -> new ProductDetails(ctx),
                 new RouteProps(900, 550, "Product Details", true))
         );
 
-        return new Router(routes, "home");
+        return new Router(new RouteTable(routes, "home"));
     }
 }
 ```
@@ -136,15 +138,14 @@ megalodonte.application/
     ├── Context           # Application context
     └── Bootstrap         # Initialization bootstrap
 
-megalodonte.router.v4/ (separate module: megalodonte-router)
-    ├── Router            # Route definitions
-    └── ScreenContext     # Per-navigation context — ctx.navigate(), ctx.scope(), route params
+megalodonte.router.v5/ (separate module: megalodonte-router, navigation-only)
+    └── Router            # navigateOnStage, navigateAndCloseOthers, mainStage
 
 megalodonte.base/
     ├── theme/            # Theme configuration (ThemeInterface, ThemeColors, ThemeTypography, ThemeSpacing, ThemeBorder)
     ├── components/       # UI components
     ├── async/            # Async.Run + Scope (lifecycle-bound cancellation)
-    ├── route/            # RouteProps, ScreenContextInterface — shared with megalodonte-router
+    ├── route/            # Route, RouteProps, RouteTable, ScreenManager, ScreenFactory + v2/ScreenContextBase — route storage, screen lifecycle and spawnWindow
     ├── UI.java           # UI thread helpers
     └── Redirect.java     # Open a URL in the system browser
 ```
@@ -153,30 +154,35 @@ megalodonte.base/
 
 ## Routing
 
-Define routes using `Router.Route` with `RouteProps`:
+`megalodonte-base` stores the routes in a `RouteTable` and owns screen lifecycle and window
+spawning; the router (v5) only navigates. Routes are defined with `Route` and `RouteProps`:
 
 ```java
 var routes = Set.of(
-    new Router.Route("home", ctx -> new HomeScreen(ctx),
+    new Route("home", ctx -> new HomeScreen(ctx),
         new RouteProps(900, 550, null, false)),
 
-    new Router.Route("settings", ctx -> new SettingsScreen(ctx),
+    new Route("settings", ctx -> new SettingsScreen(ctx),
         new RouteProps(900, 550, "Settings", true)),
 
-    new Router.Route("product/${id}", ctx -> new ProductDetails(ctx),
+    new Route("product/${id}", ctx -> new ProductDetails(ctx),
         new RouteProps(900, 550, "Product Details", true))
 );
 
-Router router = new Router(routes, "home");
+RouteTable table = new RouteTable(routes, "home");
+Router router = new Router(table);
 ```
 
 Route parameters are supported via `${param}` syntax.
 
-Screens receive a `ScreenContext ctx` in their constructor — use it to navigate:
+Screens receive a `ScreenContextInterface ctx` (from `megalodonte.base.route.v2`) in their
+constructor — use it to navigate and spawn:
 
 ```java
 ctx.navigate("settings");
 ctx.navigate("product/123");
+ctx.spawnWindow("settings");                 // open in a new window
+ctx.spawnWindow("product/123", error -> {}); // with an error handler
 ```
 
 See `megalodonte-router`'s README for the full navigation API (spawning windows, closing them,
@@ -278,8 +284,9 @@ scope.cancel();
   scope is already cancelled.
 - `cancel()` / `isCancelled()` — cheap, synchronous, idempotent.
 
-In `megalodonte-router` v4, every `ScreenContext` owns one of these automatically, and `Router`
-cancels it right before calling `onDestroy()` — see that module's README for `ctx.scope()`.
+Every `ScreenContextBase` (in `megalodonte-base`) owns one of these automatically, and
+`ScreenManager` cancels it right before calling `onDestroy()` — see `megalodonte-router`'s
+README for `ctx.scope()`.
 
 ---
 
