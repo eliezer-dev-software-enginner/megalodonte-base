@@ -10,9 +10,8 @@ import megalodonte.base.route.RouterBase;
 import java.util.function.Consumer;
 
 /**
- * Marker interface for screen-level context objects provided by the router.
- * Concrete implementations (in {@code megalodonte-router}) expose navigation,
- * route parameters, and scope to individual screens.
+ * Screen-level context provided to each screen. Exposes navigation, route
+ * parameters, scope and window spawning. Implemented by {@link ScreenContextBase}.
  */
 public interface ScreenContextInterface {
 
@@ -57,4 +56,19 @@ public interface ScreenContextInterface {
      * @return {@link Scene}
      */
     Scene getJavaFXScene();
+
+    /**
+     * Spawns a new window for the given route.
+     *
+     * @param path route identification to spawn
+     */
+    void spawnWindow(String path);
+
+    /**
+     * Spawns a new window for the given route.
+     *
+     * @param path route identification to spawn
+     * @param errorHandler callback invoked if spawning fails
+     */
+    void spawnWindow(String path, Consumer<Exception> errorHandler);
 }

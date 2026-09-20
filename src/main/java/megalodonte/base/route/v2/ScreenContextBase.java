@@ -11,7 +11,9 @@ import megalodonte.base.async.RunnableThrowing;
 import megalodonte.base.async.Scope;
 import megalodonte.base.route.RouteProps;
 import megalodonte.base.route.RouteResult;
+import megalodonte.base.route.RouteTable;
 import megalodonte.base.route.RouterBase;
+import megalodonte.base.route.ScreenManager;
 import megalodonte.base.scale.ScaleProvider;
 import megalodonte.base.theme.ThemeManager;
 import org.slf4j.Logger;
@@ -21,13 +23,14 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Marker interface for screen-level context objects provided by the router.
- * Concrete implementations (in {@code megalodonte-router}) expose navigation,
- * route parameters, and scope to individual screens.
+ * Screen-level context owned by megalodonte-base. Exposes navigation, route
+ * parameters, scope, the current JavaFX scene and window spawning. Screens on
+ * the router receive an instance of this via their {@code ScreenFactory}.
  */
-public abstract class ScreenContextBase implements ScreenContextInterface {
+public class ScreenContextBase implements ScreenContextInterface {
     private final Stage selfStage;
     private final RouterBase router;
+    private final ScreenManager screenManager;
     private final Scope scope;
 
     private static final Duration TRANSITION_DURATION = Duration.millis(200);
@@ -35,9 +38,10 @@ public abstract class ScreenContextBase implements ScreenContextInterface {
 
     private static final Logger log = LoggerFactory.getLogger(ScreenContextBase.class);
 
-    public ScreenContextBase(Stage selfStage, RouterBase router){
+    public ScreenContextBase(Stage selfStage, RouterBase router, ScreenManager screenManager){
         this.selfStage = selfStage;
         this.router = router;
+        this.screenManager = screenManager;
         this.scope = new Scope();
     }
 
@@ -58,6 +62,47 @@ public abstract class ScreenContextBase implements ScreenContextInterface {
         log.info("Navigating to '{}' and closing all spawned windows", path);
         RouteResult result = router.navigateAndCloseOthers(path);
         applyRouteResult(result, router.mainStage());
+    }
+
+    @Override
+    public void spawnWindow(String path) {
+        spawnWindow(path, e -> ErrorReporter.handle(e));
+    }
+
+    @Override
+    public void spawnWindow(String path, Consumer<Exception> errorHandler) {
+        try {
+            log.info("Spawning window for route '{}'", path);
+            Stage stage = new Stage();
+
+            RouteTable.ResolvedRoute resolved = screenManager.resolve(path);
+            RouteResult routeResult = screenManager.mount(stage, resolved.route(), resolved.params(), router);
+            RouteProps props = routeResult.props();
+
+            Parent parent = (Parent) routeResult.view().getJavaFxNode();
+            Scene scene = new Scene(parent,
+                    ScaleProvider.scale(props.screenWidth()),
+                    ScaleProvider.scale(props.screenHeight()));
+            ThemeManager.applyFontFamily(scene);
+
+            stage.setTitle(props.name());
+            if (props.iconPath() != null && !props.iconPath().isEmpty()) {
+                stage.getIcons().add(new Image(props.iconPath()));
+            }
+            stage.setResizable(props.screenIsExpandable());
+            stage.setScene(scene);
+            stage.show();
+
+            screenManager.registerSpawned(stage);
+            log.info("Window spawned successfully for route '{}'", path);
+            stage.setOnCloseRequest(e -> {
+                log.debug("Spawned window closed for route '{}'", path);
+                screenManager.destroy(stage);
+            });
+        } catch (Exception e) {
+            log.error("Failed to spawn window for route '{}'", path, e);
+            errorHandler.accept(e);
+        }
     }
 
     private void applyRouteResult(RouteResult result, Stage targetStage) {

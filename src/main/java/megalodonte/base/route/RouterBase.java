@@ -6,6 +6,9 @@ import megalodonte.application.Context;
 /**
  * Contract for routers that resolve routes and produce screen views.
  * Implemented by the concrete router in {@code megalodonte-router}.
+ *
+ * <p>Navigation-only: route storage lives in {@link RouteTable} and window
+ * spawning lives in {@code megalodonte.base.route.v2.ScreenContextBase}.</p>
  */
 public interface RouterBase {
     /** Binds this router to the application context, enabling navigation. */
