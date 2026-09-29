@@ -1,11 +1,13 @@
 package megalodonte.application;
 
 import javafx.application.Application;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import megalodonte.base.theme.FontLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URL;
 import java.util.function.Consumer;
 
 /**
@@ -44,6 +46,8 @@ public final class Bootstrap {
      */
     public static void dispatch(Class<? extends Application> appClass, Stage stage, String[] args) {
         log.info("Bootstrap dispatch starting for {}", appClass.getSimpleName());
+
+        applyAppIcon(stage);
 
         if (appName != null) {
             log.info("Setting application name: '{}'", appName);
@@ -86,6 +90,57 @@ public final class Bootstrap {
     /** @see #dispatch(Class, Stage, String[]) */
     public static void dispatch(Stage stage) {
         dispatch(stage, new String[0]);
+    }
+
+    /**
+     * Applies the icon configured through {@link MegalodonteApp#appIcon(String)} to a stage.
+     * Framework-created secondary stages call this method so they inherit the application icon.
+     *
+     * @param stage stage that should receive the application icon
+     */
+    public static void applyAppIcon(Stage stage) {
+        applyStageIcon(stage, null);
+    }
+
+    /**
+     * Applies a route icon when one is provided, otherwise falls back to the application icon.
+     * Replacing the icon list also prevents stale route icons from accumulating while navigating.
+     *
+     * @param stage             stage whose icon should be updated
+     * @param routeIconPath     route-specific image URL, or {@code null} to use the app icon
+     */
+    public static void applyStageIcon(Stage stage, String routeIconPath) {
+        stage.getIcons().clear();
+
+        if (routeIconPath != null && !routeIconPath.isBlank()) {
+            stage.getIcons().add(new Image(routeIconPath));
+            return;
+        }
+
+        URL iconResource = findAppIconResource();
+        if (iconResource != null) {
+            stage.getIcons().add(new Image(iconResource.toExternalForm()));
+        }
+    }
+
+    private static URL findAppIconResource() {
+        if (appIconResourcePath == null || appIconResourcePath.isBlank()) {
+            return null;
+        }
+
+        String normalizedPath = appIconResourcePath.startsWith("/")
+                ? appIconResourcePath.substring(1)
+                : appIconResourcePath;
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        if (classLoader == null) {
+            classLoader = Bootstrap.class.getClassLoader();
+        }
+
+        URL resource = classLoader.getResource(normalizedPath);
+        if (resource == null) {
+            log.warn("Application icon resource not found: '{}'", appIconResourcePath);
+        }
+        return resource;
     }
 
     private static void applyAppName(Stage stage) {

@@ -3,9 +3,9 @@ package megalodonte.base.route.v2;
 import javafx.animation.FadeTransition;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import megalodonte.application.Bootstrap;
 import megalodonte.application.ErrorReporter;
 import megalodonte.base.async.RunnableThrowing;
 import megalodonte.base.async.Scope;
@@ -86,9 +86,7 @@ public class ScreenContextBase implements ScreenContextInterface {
             ThemeManager.applyFontFamily(scene);
 
             stage.setTitle(props.name());
-            if (props.iconPath() != null && !props.iconPath().isEmpty()) {
-                stage.getIcons().add(new Image(props.iconPath()));
-            }
+            Bootstrap.applyStageIcon(stage, props.iconPath());
             stage.setResizable(props.screenIsExpandable());
             stage.setScene(scene);
             stage.show();
@@ -157,9 +155,7 @@ public class ScreenContextBase implements ScreenContextInterface {
         if (props.name() != null) {
             stage.setTitle(props.name());
         }
-        if (props.iconPath() != null && !props.iconPath().isEmpty()) {
-            stage.getIcons().add(new Image(props.iconPath()));
-        }
+        Bootstrap.applyStageIcon(stage, props.iconPath());
         stage.setResizable(props.screenIsExpandable());
         stage.centerOnScreen();
     }

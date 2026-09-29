@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import megalodonte.base.components.ComponentInterface;
@@ -158,9 +157,7 @@ public final class Context {
         ThemeManager.applyFontFamily(scene);
         stage.setScene(scene);
         stage.setTitle(routeResult.props().name());
-        if (props.iconPath() != null && !props.iconPath().isEmpty()) {
-            stage.getIcons().add(new Image(props.iconPath()));
-        }
+        Bootstrap.applyStageIcon(stage, props.iconPath());
         stage.centerOnScreen();
         // onMount was already called inside Router.resolveWithStage()
     }

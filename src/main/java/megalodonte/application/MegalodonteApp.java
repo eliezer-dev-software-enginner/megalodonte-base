@@ -59,11 +59,13 @@ public final class MegalodonteApp {
 
     /**
      * Classpath resource path (e.g. {@code "/assets/app_ico.png"}) for the app's icon.
-     * Used on Linux to seed the dev-mode {@code .desktop} entry — see
-     * {@link LinuxDesktopEntry}. Gets the dock/taskbar icon working when running
-     * straight from a JVM (IDE, {@code gradle run}, ...) instead of an installed
-     * package. Pair with a custom launcher class (see the {@code run(Class, ...)}
-     * overloads below) to also get a WM_CLASS unique to your app.
+     * Applied to the primary stage and inherited by windows spawned through the
+     * router, unless a route declares its own icon. On Linux it is also used to seed
+     * the dev-mode {@code .desktop} entry — see {@link LinuxDesktopEntry}. This gets
+     * the dock/taskbar icon working when running straight from a JVM (IDE,
+     * {@code gradle run}, ...) instead of an installed package. Pair with a custom
+     * launcher class (see the {@code run(Class, ...)} overloads below) to also get a
+     * WM_CLASS unique to your app.
      *
      * @param classpathResourcePath classpath resource path (e.g. {@code "/assets/app_icon.png"})
      */
