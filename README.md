@@ -2,6 +2,11 @@
 
 A lightweight JavaFX framework for building desktop applications with a **React-inspired architecture**, featuring routing, theming, components, and async utilities.
 
+Since 2026-10-06, state/theme/scale types are provided transitively by
+`megalodonte-core`; publish core before this library. Bootstrap installs the
+JavaFX scale/font adapters. Recompile consumers after this module extraction,
+especially code using the former `ThemeManager.applyFontFamily(Scene)` signature.
+
 ---
 
 ## Features

@@ -1,4 +1,5 @@
-package megalodonte.base.theme;
+package megalodonte.platform.javafx;
+import megalodonte.base.theme.ThemeTypography;
 
 import javafx.scene.text.Font;
 import org.slf4j.Logger;
@@ -36,15 +37,15 @@ import java.util.stream.Stream;
  * than once (JavaFX simply re-registers the same family) and it's a no-op — not an error —
  * when the directory doesn't exist, so apps that don't ship custom fonts pay no cost.
  */
-public final class FontLoader {
-    private static final Logger log = LoggerFactory.getLogger(FontLoader.class);
+public final class JavaFxFontLoader {
+    private static final Logger log = LoggerFactory.getLogger(JavaFxFontLoader.class);
 
     /** Conventional classpath resource directory client apps should place their fonts under. */
     public static final String DEFAULT_FONTS_DIRECTORY = "assets/fonts";
 
     private static final List<String> SUPPORTED_EXTENSIONS = List.of(".ttf", ".otf");
 
-    private FontLoader() {}
+    private JavaFxFontLoader() {}
 
     /**
      * Scans {@link #DEFAULT_FONTS_DIRECTORY} (on every classpath root — app jar, dependency
@@ -82,7 +83,7 @@ public final class FontLoader {
 
     private static ClassLoader resolveClassLoader() {
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
-        return contextClassLoader != null ? contextClassLoader : FontLoader.class.getClassLoader();
+        return contextClassLoader != null ? contextClassLoader : JavaFxFontLoader.class.getClassLoader();
     }
 
     private static String normalize(String dir) {
@@ -119,7 +120,7 @@ public final class FontLoader {
             return (int) walk
                     .filter(Files::isRegularFile)
                     .filter(file -> hasSupportedExtension(file.getFileName().toString()))
-                    .filter(FontLoader::loadFontFile)
+                    .filter(JavaFxFontLoader::loadFontFile)
                     .count();
         } catch (IOException e) {
             log.error("Failed to scan fonts directory '{}': {}", dir, e.getMessage());
@@ -175,3 +176,4 @@ public final class FontLoader {
         return SUPPORTED_EXTENSIONS.stream().anyMatch(lower::endsWith);
     }
 }
+

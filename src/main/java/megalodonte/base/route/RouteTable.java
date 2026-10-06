@@ -14,10 +14,12 @@ public final class RouteTable {
 
     private final Set<Route> routes;
     private final String entrypoint;
+    private final megalodonte.contracts.RouteMatcher<Route> matcher;
 
     public RouteTable(Set<Route> routes, String entrypoint) {
         this.routes = Set.copyOf(routes);
         this.entrypoint = entrypoint;
+        matcher = new megalodonte.contracts.RouteMatcher<>(this.routes, Route::identification);
     }
 
     public String entrypoint() {
@@ -37,32 +39,7 @@ public final class RouteTable {
      * @throws RouteNotFoundException if no route matches the given path
      */
     public ResolvedRoute resolve(String path) {
-        String[] pathParts = path.split("/");
-
-        for (Route route : routes) {
-            String[] routeParts = route.identification().split("/");
-            if (routeParts.length != pathParts.length) continue;
-
-            Map<String, String> params = new HashMap<>();
-            boolean matched = true;
-
-            for (int i = 0; i < routeParts.length; i++) {
-                String rp = routeParts[i];
-                String pp = pathParts[i];
-
-                if (rp.startsWith("${") && rp.endsWith("}")) {
-                    params.put(rp.substring(2, rp.length() - 1), pp);
-                } else if (!rp.equals(pp)) {
-                    matched = false;
-                    break;
-                }
-            }
-
-            if (matched) {
-                return new ResolvedRoute(route, params);
-            }
-        }
-
-        throw new RouteNotFoundException(path);
+        return matcher.resolve(path).map(match -> new ResolvedRoute(match.route(), match.params()))
+            .orElseThrow(() -> new RouteNotFoundException(path));
     }
 }

@@ -1,4 +1,5 @@
 module megalodonte.base {
+    requires transitive megalodonte.core;
     requires java.desktop;
     requires transitive javafx.base;
     requires transitive javafx.graphics;
@@ -12,9 +13,7 @@ module megalodonte.base {
     exports megalodonte.base.components;
     exports megalodonte.base.route;
     exports megalodonte.base.route.v2;
-    exports megalodonte.base.scale;
-    exports megalodonte.base.state;
-    exports megalodonte.base.theme;
+    exports megalodonte.platform.javafx;
     exports megalodonte.base.v2;
     exports megalodonte.utils;
 }

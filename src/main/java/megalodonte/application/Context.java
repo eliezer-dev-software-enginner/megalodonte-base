@@ -23,6 +23,7 @@ import megalodonte.base.theme.ThemeManager;
  * via {@link MegalodonteApp#run}.
  */
 public final class Context {
+    public megalodonte.contracts.BackendContract backendContract() { return megalodonte.platform.javafx.JavaFxPlatform.contract(); }
 
     private final Stage stage;
     private final String[] args;

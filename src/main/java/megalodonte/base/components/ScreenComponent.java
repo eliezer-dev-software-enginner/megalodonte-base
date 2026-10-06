@@ -6,7 +6,7 @@ package megalodonte.base.components;
  * is called once the stage is visible, and {@link #onDestroy()} is called
  * when the screen is navigated away from.
  */
-public interface ScreenComponent {
+public interface ScreenComponent extends megalodonte.contracts.ScreenLifecycle {
     /** Renders the screen's component tree. Called once per navigation. */
     Component render();
     

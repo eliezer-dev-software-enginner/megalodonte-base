@@ -45,6 +45,7 @@ public final class Bootstrap {
      * @param args     command-line arguments
      */
     public static void dispatch(Class<? extends Application> appClass, Stage stage, String[] args) {
+        megalodonte.platform.javafx.JavaFxPlatform.initialize();
         log.info("Bootstrap dispatch starting for {}", appClass.getSimpleName());
 
         applyAppIcon(stage);

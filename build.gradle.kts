@@ -1,5 +1,5 @@
 plugins {
-    id("java")
+    id("java-library")
     id("maven-publish")
 
     // 🛑 CORREÇÃO: Usando o ID e a versão CORRETOS conforme a documentação oficial.
@@ -32,6 +32,7 @@ javafx {
 }
 
 dependencies {
+    api("megalodonte:megalodonte-core:1.0.0-beta")
     // Megalodonte ecosystem
     // (megalodonte-reactivity é adicionado em runtime via reflexão)
     
