@@ -1,12 +1,9 @@
 package megalodonte.application;
 
-import javafx.animation.PauseTransition;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import megalodonte.base.components.ComponentInterface;
 import megalodonte.base.components.ScreenComponent;
 import megalodonte.base.route.RouteResult;
@@ -71,8 +68,15 @@ public final class Context {
      * @param component the screen component to render
      */
     public void useView(ScreenComponent component) {
+        useView(component, width, height);
+    }
+
+    /** Creates the first scene at its intended size, avoiding native resize feedback at startup. */
+    public void useView(ScreenComponent component, double sceneWidth, double sceneHeight) {
+        if (!Double.isFinite(sceneWidth) || !Double.isFinite(sceneHeight) || sceneWidth <= 0 || sceneHeight <= 0)
+            throw new IllegalArgumentException("Scene dimensions must be finite and positive");
        var parentLayout = (Parent) component.render().getJavaFxNode();
-        var scene = new Scene(parentLayout, width, height);
+        var scene = new Scene(parentLayout, sceneWidth, sceneHeight);
         ThemeManager.applyFontFamily(scene);
         stage.setScene(scene);
 
@@ -112,33 +116,16 @@ public final class Context {
         scene.setRoot(parentLayout);
     }
 
-    /**
-     * centerOnScreen() precisa do tamanho FINAL da stage, mas quanto tempo o layout
-     * leva pra se estabilizar varia — fontes/imagens carregando, várias passadas de
-     * CSS/layout, minWidth/minHeight só aplicados no show() do Bootstrap (que só
-     * acontece depois do handler de {@code MegalodonteApp.run(...)} retornar). Um
-     * único {@code Platform.runLater(...)} funciona às vezes e às vezes não —
-     * observado na prática: a janela abria centralizada em algumas execuções e
-     * deslocada em outras, mesmo sem mudar nada no código.
-     * <p>
-     * Em vez de adivinhar quantos pulses esperar, reage a QUALQUER mudança real de
-     * largura/altura da stage recentralizando, e para de escutar depois de uma janela
-     * curta — do contrário, mudanças de tamanho legítimas e posteriores (o usuário
-     * redimensionando a janela, ou uma tela trocando o conteúdo depois) forçariam a
-     * app a se recentralizar sozinha pra sempre, o que seria um bug por si só.
-     */
+    /** Centers once after initial layout without reacting inside native resize events. */
     private static void centerAfterLayoutSettles(Stage stage) {
-        ChangeListener<Number> recenter = (obs, oldValue, newValue) -> stage.centerOnScreen();
-        stage.widthProperty().addListener(recenter);
-        stage.heightProperty().addListener(recenter);
-
-        PauseTransition settle = new PauseTransition(Duration.millis(300));
-        settle.setOnFinished(e -> {
-            stage.widthProperty().removeListener(recenter);
-            stage.heightProperty().removeListener(recenter);
-            stage.centerOnScreen();
-        });
-        settle.play();
+        // Set the initial position before the native window is mapped. Calling
+        // centerOnScreen during GTK configure events (even in a later pulse)
+        // can cause an endless configure/move loop on some window managers.
+        if (!stage.isShowing() && stage.getScene() != null) {
+            var bounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+            stage.setX(bounds.getMinX() + Math.max(0, (bounds.getWidth() - stage.getScene().getWidth()) / 2));
+            stage.setY(bounds.getMinY() + Math.max(0, (bounds.getHeight() - stage.getScene().getHeight()) / 2));
+        }
     }
 
     /**

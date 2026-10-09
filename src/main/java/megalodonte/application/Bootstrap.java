@@ -145,20 +145,11 @@ public final class Bootstrap {
     }
 
     private static void applyAppName(Stage stage) {
-        // Does not affect WM_CLASS on Linux (confirmed via xprop — what determines
-        // that is the concrete Application class launched, see MegalodonteApplication).
-        // Kept because it may help on other platforms/contexts (e.g. app name in
-        // macOS menu) and is harmless on Linux.
+        // JavaFX windows use Glass for their native identity. Initializing AWT here
+        // starts a second X11 toolkit inside GTK startup and can leave the native
+        // event loop spinning (black, unresponsive window on Linux).
+        // Bootstrap already assigns the JavaFX name; LinuxDesktopEntry matches Glass.
         System.setProperty("javafx.application.name", appName);
-
-        try {
-            var toolkit = java.awt.Toolkit.getDefaultToolkit();
-            var xwmField = toolkit.getClass().getDeclaredField("awtAppClassName");
-            xwmField.setAccessible(true);
-            xwmField.set(toolkit, appName);
-        } catch (Exception ignored) {
-            // Not Linux/GTK, silently ignored
-        }
     }
 
 
