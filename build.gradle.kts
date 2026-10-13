@@ -56,8 +56,7 @@ dependencies {
 }
 
 tasks.test {
-    //useJUnitPlatform()
-    enabled = false
+    useJUnitPlatform()
 }
 
 tasks.javadoc {
@@ -93,4 +92,3 @@ publishing {
         }
     }
 }
-
