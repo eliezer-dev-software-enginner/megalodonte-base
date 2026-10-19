@@ -1,6 +1,8 @@
 package megalodonte.base.route.v2;
 
 import javafx.animation.FadeTransition;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -183,29 +185,41 @@ public class ScreenContextBase implements ScreenContextInterface {
 
     @Override
     public void whenReady(RunnableThrowing runnableThrowing) {
+        if (scope.isCancelled()) return;
         Scene current = selfStage.getScene();
         if (current != null) {
             log.debug("Scene already available, executing callback immediately");
-            try {
-                runnableThrowing.run();
-            } catch (Throwable t) {
-                log.error("Async task failed", t);
-                ErrorReporter.handle(t);
-            }
+            runReadyCallback(runnableThrowing);
             return;
         }
 
         log.debug("Scene not yet available, registering listener");
-        selfStage.sceneProperty().addListener((_, _, newScene) -> {
-            if (newScene != null) {
-                try {
-                    runnableThrowing.run();
-                } catch (Throwable t) {
-                    log.error("Async task failed", t);
-                    ErrorReporter.handle(t);
-                }
+        ChangeListener<Scene> listener = new ChangeListener<>() {
+            @Override
+            public void changed(javafx.beans.value.ObservableValue<? extends Scene> observable,
+                                Scene oldScene, Scene newScene) {
+                if (newScene == null) return;
+                selfStage.sceneProperty().removeListener(this);
+                if (!scope.isCancelled()) runReadyCallback(runnableThrowing);
+            }
+        };
+        selfStage.sceneProperty().addListener(listener);
+        scope.onCancel(() -> {
+            if (Platform.isFxApplicationThread()) {
+                selfStage.sceneProperty().removeListener(listener);
+            } else {
+                Platform.runLater(() -> selfStage.sceneProperty().removeListener(listener));
             }
         });
+    }
+
+    private static void runReadyCallback(RunnableThrowing callback) {
+        try {
+            callback.run();
+        } catch (Throwable t) {
+            log.error("Ready callback failed", t);
+            ErrorReporter.handle(t);
+        }
     }
 
 }
