@@ -39,9 +39,12 @@ repositories {
 
 dependencies {
     implementation("megalodonte:megalodonte-base:1.0.0-beta")
-    // Also add a compatible megalodonte-router artifact for the Router examples below.
 }
 ```
+
+The routing examples also require a compatible `megalodonte-router` dependency,
+which is maintained separately. Its coordinates and setup must be taken from
+that module; this repository does not declare a router version.
 
 ---
 
@@ -154,7 +157,6 @@ megalodonte.router.v5/ (separate module: megalodonte-router, navigation-only)
     └── Router            # navigateOnStage, navigateAndCloseOthers, mainStage
 
 megalodonte.base/
-    ├── theme/            # Theme types supplied by megalodonte-core (transitive dependency)
     ├── components/       # UI components
     ├── async/            # Async.Run + Scope (lifecycle-bound cancellation)
     ├── route/            # Route, RouteProps, RouteTable, ScreenManager, ScreenFactory + v2/ScreenContextBase — route storage, screen lifecycle and spawnWindow
@@ -170,6 +172,12 @@ megalodonte.base/
 spawning; the router (v5) only navigates. Routes are defined with `Route` and `RouteProps`:
 
 ```java
+import megalodonte.base.route.Route;
+import megalodonte.base.route.RouteProps;
+import megalodonte.base.route.RouteTable;
+import megalodonte.router.v5.Router;
+import java.util.Set;
+
 var routes = Set.of(
     new Route("home", ctx -> new HomeScreen(ctx),
         new RouteProps(900, 550, null, false)),
@@ -197,12 +205,15 @@ ctx.spawnWindow("settings");                 // open in a new window
 ctx.spawnWindow("product/123", error -> {}); // with an error handler
 ```
 
-See `megalodonte-router`'s README for the full navigation API (spawning windows, closing them,
-reading route parameters, and automatic cancellation of in-flight work via `ctx.scope()`).
+See `megalodonte-router`'s README for the full navigation API. The screen context's
+`ctx.scope()` is cancelled when that screen is destroyed; running tasks must check
+`isCancelled()` or register cleanup with `onCancel()`.
 
 Use `Redirect.to()` to open a URL in the user's browser:
 
 ```java
+import megalodonte.base.Redirect;
+
 Redirect.to("https://github.com");
 ```
 
@@ -220,6 +231,9 @@ Consult the matching core version for the theme type constructors and API.
 ## Async Operations
 
 ```java
+import megalodonte.base.UI;
+import megalodonte.base.async.Async;
+
 Async.Run(() -> {
     var data = fetchData(); // runs on a virtual thread
 
@@ -246,6 +260,9 @@ setting that resource up, nothing is left to close it.
 `Scope` gives that kind of work a cancellable handle instead:
 
 ```java
+import megalodonte.base.UI;
+import megalodonte.base.async.Scope;
+
 Scope scope = new Scope();
 
 scope.run(() -> {
@@ -298,8 +315,14 @@ src/
  │   │   ├── async/
  │   │   │   ├── Async.java
  │   │   │   └── Scope.java
+ │   │   ├── route/
+ │   │   │   ├── Route.java
+ │   │   │   ├── RouteProps.java
+ │   │   │   ├── RouteTable.java
+ │   │   │   └── v2/
  │   │   ├── UI.java
  │   │   └── Redirect.java
+ │   ├─ platform/javafx/
  │   └─ utils/
  │
  └─ test/java/megalodonte/
