@@ -2,10 +2,9 @@
 
 A lightweight JavaFX framework for building desktop applications with a **React-inspired architecture**, featuring routing, theming, components, and async utilities.
 
-Since 2026-10-06, state/theme/scale types are provided transitively by
-`megalodonte-core`; publish core before this library. Bootstrap installs the
-JavaFX scale/font adapters. Recompile consumers after this module extraction,
-especially code using the former `ThemeManager.applyFontFamily(Scene)` signature.
+State, theme and scale types come from `megalodonte-core` through this library.
+Publish core to Maven Local before publishing base. Bootstrap installs the JavaFX
+scale and font adapters. Consumers built against earlier module layouts need recompilation.
 
 ---
 
@@ -22,11 +21,15 @@ especially code using the former `ThemeManager.applyFontFamily(Scene)` signature
 
 ## Installation (Maven Local)
 
+Use JDK 25. The included Gradle wrapper downloads Gradle 9.2.0. Publish the
+matching `megalodonte-core:1.0.0-beta` artifact to Maven Local first; it is a
+required API dependency. From this repository root, run:
+
 ```bash
 ./gradlew publishToMavenLocal
 ```
 
-Add to your project:
+Add this library to your project:
 
 ```gradle
 repositories {
@@ -36,6 +39,7 @@ repositories {
 
 dependencies {
     implementation("megalodonte:megalodonte-base:1.0.0-beta")
+    // Also add a compatible megalodonte-router artifact for the Router examples below.
 }
 ```
 
@@ -43,10 +47,12 @@ dependencies {
 
 ## Quick Start
 
+The following routing examples require the separate `megalodonte-router` module
+and application screen classes. `AppRouter.build()` is defined in the example below.
+
 ```java
 import megalodonte.application.MegalodonteApp;
-import megalodonte.application.Context;
-import megalodonte.router.v5.Router;
+import my_app.AppRouter;
 
 public class Main {
 
@@ -71,7 +77,6 @@ public class Main {
 import megalodonte.application.MegalodonteApp;
 import megalodonte.application.MegalodonteApplication;
 import megalodonte.application.Context;
-import megalodonte.router.v5.Router;
 import my_app.AppRouter;
 
 public class Main {
@@ -108,9 +113,11 @@ import megalodonte.base.route.Route;
 import megalodonte.base.route.RouteProps;
 import megalodonte.base.route.RouteTable;
 import megalodonte.router.v5.Router;
+import java.util.Set;
 import my_app.screens.HomeScreen;
 import my_app.screens.SettingsScreen;
 import my_app.screens.ProductsScreen;
+import my_app.screens.ProductDetails;
 
 public class AppRouter {
     public static Router build() {
@@ -147,7 +154,7 @@ megalodonte.router.v5/ (separate module: megalodonte-router, navigation-only)
     └── Router            # navigateOnStage, navigateAndCloseOthers, mainStage
 
 megalodonte.base/
-    ├── theme/            # Theme configuration (ThemeInterface, ThemeColors, ThemeTypography, ThemeSpacing, ThemeBorder)
+    ├── theme/            # Theme types supplied by megalodonte-core (transitive dependency)
     ├── components/       # UI components
     ├── async/            # Async.Run + Scope (lifecycle-bound cancellation)
     ├── route/            # Route, RouteProps, RouteTable, ScreenManager, ScreenFactory + v2/ScreenContextBase — route storage, screen lifecycle and spawnWindow
@@ -203,41 +210,10 @@ Redirect.to("https://github.com");
 
 ## Theming
 
-Create a custom theme by implementing `ThemeInterface`:
-
-```java
-public class MyTheme implements ThemeInterface {
-    @Override
-    public ThemeColors colors() {
-        return new ThemeColors(
-            "#FFFFFF", "#F5F5F5", "#1976D2", "#FF5722",  // background, surface, primary, secondary
-            "#212121", "#757575", "#E0E0E0", "#9E9E9E",  // textPrimary, textSecondary, border, placeholder
-            "#BBDEFB", "#90CAF9", "#EEEEEE"               // selection, focusRing, hover
-        );
-    }
-
-    @Override
-    public ThemeTypography typography() {
-        return new ThemeTypography(24, 18, 14, 12);
-    }
-
-    @Override
-    public ThemeSpacing spacing() {
-        return new ThemeSpacing(4, 8, 16, 24, 32);
-    }
-
-    @Override
-    public ThemeBorder border() {
-        return new ThemeBorder(1, 4, 8, 16);
-    }
-}
-```
-
-Apply the theme via ThemeManager (from megalodonte-theme):
-
-```java
-ThemeManager.setTheme(new MyTheme());
-```
+Theme contracts and `ThemeManager` are supplied by the transitive
+`megalodonte-core` dependency. This library installs JavaFX font and scale
+adapters during bootstrap and applies the current theme font to new scenes.
+Consult the matching core version for the theme type constructors and API.
 
 ---
 
@@ -298,7 +274,7 @@ README for `ctx.scope()`.
 ## Technologies
 
 - Java 25
-- JavaFX 17
+- JavaFX 25.0.1
 - JUnit 5
 - Mockito
 - TestFX
@@ -318,12 +294,6 @@ src/
  │   │   ├── Bootstrap.java
  │   │   └── JavaFXHost.java
  │   ├─ base/
- │   │   ├── theme/
- │   │   │   ├── ThemeInterface.java
- │   │   │   ├── ThemeColors.java
- │   │   │   ├── ThemeTypography.java
- │   │   │   ├── ThemeSpacing.java
- │   │   │   └── ThemeBorder.java
  │   │   ├── components/
  │   │   ├── async/
  │   │   │   ├── Async.java
@@ -339,4 +309,5 @@ src/
 
 ## License
 
-MIT License
+No license file is present in this repository. The licensing terms require
+confirmation from the project maintainers.
