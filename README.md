@@ -51,7 +51,10 @@ that module; this repository does not declare a router version.
 ## Quick Start
 
 The following routing examples require the separate `megalodonte-router` module
-and application screen classes. `AppRouter.build()` is defined in the example below.
+and application screen classes (`HomeScreen`, `SettingsScreen`, `ProductsScreen`,
+and `ProductDetails`). Those classes are placeholders to implement in your own
+application; the snippets do not run as a standalone project. `AppRouter.build()`
+is defined in the example below.
 
 ```java
 import megalodonte.application.MegalodonteApp;
@@ -252,10 +255,10 @@ teardown when a screen is destroyed, use `Scope` instead — see below.
 ## Scope (lifecycle-bound cancellation)
 
 `Async.Run()` is fire-and-forget: it has no idea who started it, so nothing stops it if the
-screen that kicked it off is gone by the time it finishes. That's fine for a one-shot "fetch and
-update the UI" call, but it's a real bug if the task opens something that needs to be closed
-(a socket, a serial port, a listener) — if the screen is destroyed while the task is still
-setting that resource up, nothing is left to close it.
+screen that kicked it off is gone by the time it finishes. A one-shot fetch must also check
+whether its screen is still active before updating the UI. A task that opens a resource
+(a socket, a serial port, a listener) also needs cleanup if the screen is destroyed
+while that resource is being set up.
 
 `Scope` gives that kind of work a cancellable handle instead:
 
@@ -270,7 +273,9 @@ scope.run(() -> {
     scope.onCancel(connection::close); // fires now if already cancelled, or later when cancel() runs
     if (scope.isCancelled()) return;   // don't start using a connection we just closed
 
-    connection.listen(data -> UI.runOnUi(() -> state.set(data)));
+    connection.listen(data -> UI.runOnUi(() -> {
+        if (!scope.isCancelled()) state.set(data);
+    }));
 });
 
 // later, when the owner (screen/ViewModel) goes away:
