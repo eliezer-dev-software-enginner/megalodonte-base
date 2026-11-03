@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Locale;
 
 /**
@@ -26,6 +28,8 @@ import java.util.Locale;
  * get their own distinct WM_CLASS/taskbar icon instead of colliding on the shared
  * {@link JavaFXHost}'s.
  * <p>
+ * The extracted icon includes a content hash in its file name, so replacing the
+ * bundled PNG produces a new path instead of reusing GNOME's cached image.
  * This installs a minimal per-user {@code .desktop} entry under
  * {@code ~/.local/share/applications}, re-writing it on every startup (cheap, and
  * avoids ever going stale across framework changes), purely so GNOME's icon lookup
@@ -64,18 +68,27 @@ final class LinuxDesktopEntry {
     }
 
     private static Path extractIcon(String slug, String resourcePath) throws IOException {
-        Path iconFile = appDataPath(".local/share/icons/hicolor/256x256/apps", slug + ".png");
-
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         if (classLoader == null) classLoader = LinuxDesktopEntry.class.getClassLoader();
 
         String normalized = resourcePath.startsWith("/") ? resourcePath.substring(1) : resourcePath;
         try (InputStream in = classLoader.getResourceAsStream(normalized)) {
-            if (in == null) return Files.exists(iconFile) ? iconFile : null;
+            if (in == null) return null;
+            byte[] iconBytes = in.readAllBytes();
+            Path iconFile = appDataPath(".local/share/icons/hicolor/256x256/apps", iconFileName(slug, iconBytes));
             Files.createDirectories(iconFile.getParent());
-            Files.copy(in, iconFile, StandardCopyOption.REPLACE_EXISTING);
+            Files.write(iconFile, iconBytes);
+            return iconFile;
         }
-        return iconFile;
+    }
+
+    static String iconFileName(String slug, byte[] iconBytes) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256").digest(iconBytes);
+            return slug + "-" + HexFormat.of().formatHex(digest, 0, 6) + ".png";
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 unavailable", e);
+        }
     }
 
     private static Path appDataPath(String relativeDir, String fileName) {

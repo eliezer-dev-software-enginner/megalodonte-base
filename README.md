@@ -112,6 +112,11 @@ public class Main {
 }
 ```
 
+On Linux, a custom `AppHost` gives each application its own `WM_CLASS` for dock
+matching. The development `.desktop` entry refers to an icon file whose name
+contains a hash of the bundled image, so updating the icon does not reuse a
+cached image at the old path.
+
 ### AppRouter.java
 
 ```java
