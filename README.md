@@ -50,6 +50,23 @@ that module; this repository does not declare a router version.
 
 ## Quick Start
 
+For a complete desktop starter, use the [Megalodonte CLI](https://github.com/eliezer-dev-software-enginner/megalodonte-cli):
+
+```sh
+megalodonte my-app --platform desktop --mode native --display-name "My App"
+cd my-app
+./gradlew run
+```
+
+The CLI README covers installation and the required Java 25 toolchain. The
+generated build needs matching Megalodonte artifacts in Maven Local or a
+configured repository; its native starter uses base, components and theme.
+See the [ecosystem guide](https://github.com/eliezer-dev-software-enginner/megalodonte-ecossystem#readme)
+for a first-project walkthrough and local dependency setup. Base supplies the
+application host, screen and lifecycle contracts, theme integration and async
+utilities; combine it with [Megalodonte Components](https://github.com/eliezer-dev-software-enginner/megalodonte-components)
+for ready-to-use desktop controls and layouts.
+
 The following routing examples require the separate `megalodonte-router` module
 and application screen classes (`HomeScreen`, `SettingsScreen`, `ProductsScreen`,
 and `ProductDetails`). Those classes are placeholders to implement in your own
@@ -232,7 +249,58 @@ Redirect.to("https://github.com");
 Theme contracts and `ThemeManager` are supplied by the transitive
 `megalodonte-core` dependency. This library installs JavaFX font and scale
 adapters during bootstrap and applies the current theme font to new scenes.
-Consult the matching core version for the theme type constructors and API.
+Apply a theme before rendering components: without one, theme-driven `Props`
+styling is skipped. [Megalodonte Theme](https://github.com/eliezer-dev-software-enginner/megalodonte-theme)
+provides `DefaultTheme`, a ready-to-use implementation and a reference for the
+contract. To use it, make its `megalodonte:megalodonte-theme:1.0.0-beta`
+artifact available and add it as an application dependency:
+
+```kotlin
+implementation("megalodonte:megalodonte-theme:1.0.0-beta")
+```
+
+To create a theme library, depend on `megalodonte-core` and implement
+`ThemeInterface`. This complete example defines a dark palette, typography,
+spacing, padding and borders:
+
+```java
+import megalodonte.base.theme.ThemeBorder;
+import megalodonte.base.theme.ThemeColors;
+import megalodonte.base.theme.ThemeInterface;
+import megalodonte.base.theme.ThemePadding;
+import megalodonte.base.theme.ThemeSpacing;
+import megalodonte.base.theme.ThemeTypography;
+
+public class MyTheme implements ThemeInterface {
+    @Override public ThemeColors colors() {
+        return new ThemeColors(
+            "#0f172a", "#1e293b", "#38bdf8", "#94a3b8", // background, surface, primary, secondary
+            "#f8fafc", "#cbd5e1", "#475569", "#94a3b8", // primary/secondary text, border, placeholder
+            "#0c4a6e", "#0ea5e9", "#334155",             // selection, focus ring, hover
+            "#16a34a", "#d97706", "#dc2626"               // success, warning, danger
+        );
+    }
+    @Override public ThemeTypography typography() { return new ThemeTypography(18, 16, 14, 12); }
+    @Override public ThemeSpacing spacing() { return new ThemeSpacing(4, 8, 16, 24, 32); }
+    @Override public ThemePadding padding() { return new ThemePadding(4, 8, 16, 24, 32); }
+    @Override public ThemeBorder border() { return new ThemeBorder(1, 4, 6, 8); }
+}
+```
+
+Once the theme class or library is available to your application, install it
+before creating screens:
+
+```java
+import megalodonte.base.theme.ThemeManager;
+
+ThemeManager.setTheme(new MyTheme());
+```
+
+For a quick customization you can also extend `DefaultTheme` and override only
+the tokens you need. The [theme repository](https://github.com/eliezer-dev-software-enginner/megalodonte-theme#writing-a-custom-theme)
+documents the constructors and contains the full default implementation. To
+switch themes later, call `ThemeManager.setTheme(...)` again; whether existing
+components update depends on the consuming integration.
 
 ---
 
