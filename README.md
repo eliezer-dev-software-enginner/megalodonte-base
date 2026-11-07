@@ -103,7 +103,7 @@ import megalodonte.application.Context;
 import my_app.AppRouter;
 
 public class Main {
-    public static class AppHost extends MegalodonteApplication {}
+    public static final class AppHost extends MegalodonteApplication {}
 
     public static void main(String[] args) {
         MegalodonteApp.run(AppHost.class, args, Main::start, Main::onEvent);
@@ -133,6 +133,17 @@ On Linux, a custom `AppHost` gives each application its own `WM_CLASS` for dock
 matching. The development `.desktop` entry refers to an icon file whose name
 contains a hash of the bundled image, so updating the icon does not reuse a
 cached image at the old path.
+
+If Linux still displays a generic or another application's dock icon, configure
+`MegalodonteApp.appName(...)` and `MegalodonteApp.appIcon("/icon.png")` before
+launching with the application-specific `AppHost`, as above. The PNG must be a
+classpath resource; the icon used by an installer is configured separately in
+its packaging metadata. On X11, run `xprop WM_CLASS` and click the window,
+then compare the result with `StartupWMClass` in the relevant `.desktop` entry.
+The framework creates a development entry in `~/.local/share/applications/`;
+installed launchers may have their own entry. Rebuild and restart the application
+after changes, and rebuild and reinstall an installed package. Wayland and dock
+implementations may use different diagnostics or matching rules.
 
 ### AppRouter.java
 
