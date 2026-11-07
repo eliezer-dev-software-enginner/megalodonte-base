@@ -29,6 +29,10 @@ required API dependency. From this repository root, run:
 ./gradlew publishToMavenLocal
 ```
 
+The GitHub Pages workflow checks out `megalodonte-core` and publishes it to the
+runner's Maven Local before generating Javadoc; it does not depend on artifacts
+already present on the runner.
+
 Add this library to your project:
 
 ```gradle
