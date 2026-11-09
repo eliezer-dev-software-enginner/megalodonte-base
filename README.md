@@ -149,6 +149,62 @@ installed launchers may have their own entry. Rebuild and restart the applicatio
 after changes, and rebuild and reinstall an installed package. Wayland and dock
 implementations may use different diagnostics or matching rules.
 
+### Centralized error handling
+
+Register an application handler with `ErrorReporter` during startup, before
+launching asynchronous work. Unhandled exceptions from `Async.Run`, `Scope`
+tasks and framework-managed screen operations are sent to this handler. Every
+reported exception is also appended to `~/.megalodonte/errors.log`; the
+application remains free to log it elsewhere, show an alert, notify a monitoring
+service, or combine those actions.
+
+```java
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import megalodonte.application.Context;
+import megalodonte.application.ErrorReporter;
+import megalodonte.base.UI;
+import my_app.core.components.Components;
+
+public final class Main {
+    private static final Logger LOG = System.getLogger(Main.class.getName());
+
+    private static void start(Context context) {
+        // Register before initialize() starts Async.Run or Scope tasks.
+        ErrorReporter.register(Main::handleAppError);
+        initialize(context);
+    }
+
+    private static void handleAppError(Throwable error) {
+        LOG.log(Level.ERROR, "Unhandled application error", error);
+
+        // Error handlers may run outside the JavaFX thread.
+        UI.runOnUi(() -> Components.ShowAlertError(messageFor(error)));
+    }
+
+    private static String messageFor(Throwable error) {
+        String detail = error.getMessage();
+        return detail == null || detail.isBlank()
+                ? "An unexpected error occurred. Details were written to the log."
+                : detail;
+    }
+
+    private static void initialize(Context context) {
+        // Build the application and start its initial screen.
+    }
+}
+```
+
+`Components.ShowAlertError(...)` represents the application's own alert or
+dialog abstraction, as used by Plics SW; replace it with the presentation API
+of the client application. Keeping presentation outside `ErrorReporter` lets a
+headless client log only, while a desktop client can safely return to the UI
+thread and inform the user.
+
+Use `ErrorReporter.handle(error)` when catching an exception that should follow
+the same centralized path. If no handler was registered, the fallback writes
+the error to stderr in addition to the framework log.
+
 ### AppRouter.java
 
 ```java

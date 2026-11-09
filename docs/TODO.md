@@ -13,6 +13,7 @@
 - [x] `./gradlew javadoc` configured and generating HTML successfully
 - [x] Added `slf4j-simple` as test runtime binding for log visibility during tests
 - [x] Implemented `ErrorReporter.log()` — writes errors to `~/.megalodonte/errors.log`
+- [x] Documented client-side centralized error handling with `ErrorReporter.register(...)`, `UI.runOnUi(...)` and `ErrorReporter.handle(...)`
 - [x] Fixed unchecked cast warning in `Component.ref()`
 
 ## Pendências

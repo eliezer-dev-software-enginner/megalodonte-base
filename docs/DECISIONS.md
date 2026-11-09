@@ -1,5 +1,16 @@
 # Decisões Arquiteturais
 
+## 2026-11-09 — Documentar o tratamento centralizado de exceções
+
+**Problema**: `ErrorReporter` já centralizava falhas de `Async.Run`, `Scope` e operações de tela, mas o README não mostrava ao aplicativo cliente como registrar sua própria política de tratamento.
+
+**Decisão**:
+1. Documentar `ErrorReporter.register(...)` como etapa inicial do bootstrap, antes de iniciar trabalho assíncrono.
+2. Mostrar que o callback pertence ao aplicativo e pode combinar logs, alertas e integrações externas.
+3. Encaminhar apresentação visual com `UI.runOnUi(...)`, pois a falha pode chegar fora da thread JavaFX.
+4. Documentar `ErrorReporter.handle(...)` para exceções capturadas que devam seguir a mesma política e o log de segurança mantido em `~/.megalodonte/errors.log`.
+5. Reproduzir essa orientação na skill `megalodonte-native-ui` distribuída pelo CLI.
+
 ## 2026-08-25 — Javadoc documentation for all project classes
 
 **Problem**: Most classes lacked Javadoc documentation, making the API hard to understand for new developers.
