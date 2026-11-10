@@ -4,13 +4,13 @@ import javafx.application.Platform;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import megalodonte.base.components.ScreenComponent;
 import megalodonte.base.components.Component;
 import megalodonte.base.state.SubscriptionScope;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -18,6 +18,8 @@ import java.util.concurrent.ExecutionException;
 public final class LiveReload {
     private static final Object KEY = new Object();
     private static final Object CAPTURE = new Object();
+    /** FX-thread-owned registry. Weak keys avoid retaining a Stage after its lifecycle ends. */
+    private static final WeakHashMap<Stage, Boolean> TRACKED_STAGES = new WeakHashMap<>();
     private record Binding(ScreenComponent screen, Parent root, SubscriptionScope scope) {}
     private record Replacement(Stage stage, Scene scene, Binding old, Binding next) {}
 
@@ -43,12 +45,14 @@ public final class LiveReload {
         if (ReloadAgent.isActive()) {
             Binding binding = binding(screen, root);
             var previous = stage.getProperties().put(KEY, binding);
+            TRACKED_STAGES.put(stage, Boolean.TRUE);
             if (previous instanceof Binding old) release(old);
         }
     }
 
     /** Drop a route that is being destroyed or replaced by an unmanaged view. */
     public static void untrack(Stage stage) {
+        TRACKED_STAGES.remove(stage);
         if (stage.getProperties().remove(KEY) instanceof Binding old) release(old);
     }
 
@@ -100,8 +104,7 @@ public final class LiveReload {
         if (!Platform.isFxApplicationThread()) throw new IllegalStateException("FX thread required");
         List<Replacement> replacements = new ArrayList<>();
         try {
-            for (Window window : List.copyOf(Window.getWindows())) {
-                if (!(window instanceof Stage stage)) continue;
+            for (Stage stage : List.copyOf(TRACKED_STAGES.keySet())) {
                 if (!(stage.getProperties().get(KEY) instanceof Binding binding)) continue;
                 Scene scene = stage.getScene();
                 // Do not replace a stale screen during an asynchronous navigation transition.

@@ -8,7 +8,10 @@ invariantes do coletor; usamos Instrumentation oficial para redefinir classes
 compatíveis, sem substituir class loaders. O CLI conserva runtime e dependências
 em cópias próprias; Gradle continua responsável por compilação incremental.
 
-Todas as telas visíveis gerenciadas preparam suas novas raízes no mesmo turno FX.
+Todas as telas gerenciadas preparam suas novas raízes no mesmo turno FX. As janelas
+principal e secundárias são mantidas em um registro fraco explícito durante seu
+ciclo de vida; o reload não depende de `Window.getWindows()`, que pode omitir uma
+janela conforme o estado observado no instante da atualização.
 Somente após todas renderizarem ocorre a troca. A instância da tela e seus campos
 permanecem; não reiniciamos o ciclo de montagem nem presumimos migração automática
 de objetos. `SubscriptionScope` identifica assinaturas síncronas do render, para

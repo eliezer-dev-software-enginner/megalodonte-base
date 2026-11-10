@@ -73,9 +73,11 @@ Existing application screens do not automatically support generation replacement
    `Instrumentation.redefineClasses` in one batch. Only changed classes are sent.
    Classes are loaded without initialization before replacement to retain their
    previous definitions for rollback; application class loaders are not replaced.
-5. On the JavaFX thread, all visible registered screens prepare new roots using
-   their existing screen instances. Roots are committed only after every render
-   succeeds. Stages and Scenes remain, retaining window size, position and title.
+5. On the JavaFX thread, every framework-managed screen prepares a new root using
+   its existing screen instance. The framework keeps an explicit weak registry of
+   primary and spawned stages; refresh does not depend on JavaFX's global window
+   enumeration. Roots are committed only after every render succeeds. Stages and
+   Scenes remain, retaining window size, position and title.
 
 The command prints `APPLIED`, `REJECTED`, or `RESTART_REQUIRED`, plus class and
 window counts on success. Ctrl+C stops the development child and removes the

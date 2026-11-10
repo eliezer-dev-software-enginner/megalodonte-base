@@ -41,6 +41,10 @@ public final class ReloadProbe {
                     screens.add(screen);
                     scenes.add(stage.getScene());
                 }
+                // A framework-managed secondary stage remains reloadable through
+                // its explicit binding; refresh must not depend on JavaFX's global
+                // observable window list at the instant a generation is applied.
+                windows.get(1).hide();
                 Files.writeString(session.resolve("ready"), "ready");
             } catch (Throwable error) {
                 error.printStackTrace();
