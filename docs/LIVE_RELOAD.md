@@ -19,6 +19,39 @@ not enable the agent or the file watcher.
 
 ## What the isolated world does
 
+### Proposed fallback: persistent window host (not implemented)
+
+Keeping the same native windows open is a user requirement even when ordinary
+class redefinition fails. Automatic process restart does not satisfy it.
+
+A possible fallback is a permanent host owning JavaFX, the Stage/Scene registry
+and a stable framework bridge, with application code loaded as replaceable
+generations. Compatible changes keep the existing redefine path. Structural
+changes prepare a new generation in an isolated class loader, reconstruct the
+registered screens and transfer explicitly supported state through a neutral,
+versioned data contract. Existing application object instances cannot simply be
+cast to classes from the new generation. Framework APIs crossing that boundary
+must remain in the host loader.
+
+Prepare every affected window before swapping any roots on the FX thread. If
+preparation or state conversion fails, keep the old generation and all its
+windows active. A removed screen with no replacement requires an explicit
+mapping or rejection, never silently closing its window. After a successful
+swap, detach old callbacks and stop owned jobs/listeners; do not rerun arbitrary
+startup side effects. This needs explicit lifecycle ownership and does not make
+network/database effects transactional.
+
+Window identity can be preserved by this design, but arbitrary application
+state cannot be promised. Changes to the host, JavaFX or native dependencies,
+and a crashed JVM, remain outside this fallback. A separate worker process
+could isolate application crashes only with an additional declarative UI/event
+protocol; JavaFX Node objects cannot be transferred between processes.
+
+This is an architectural proposal, not an implemented feature or a guarantee
+that all current application code already supports generation replacement.
+
+### Current implementation
+
 1. The CLI watches source/resource directories and Gradle configuration, caches file
    hashes, and waits for a quiet interval (`--debounce`, default 0.6 seconds).
 2. Gradle compiles to a private temporary build directory using its incremental

@@ -104,3 +104,7 @@ que a aplicação cliente chamasse `Font.loadFont(...)` arquivo por arquivo, no 
 - `ThemeTypography` — font sizes + resolve(TextVariant)
 - `ThemeSpacing` — spacing scale
 - `ThemeBorder` — border width + radius scale
+
+## Hospedeiro nativo permanente por mensageria
+
+Adotar processo hospedeiro para janelas e workers Java substituíveis, com JSON apenas como protocolo interno. Não depende da construção de UI JSONC. Primeira etapa e validação ao final documentadas em [NATIVE_MESSAGING.md](NATIVE_MESSAGING.md).

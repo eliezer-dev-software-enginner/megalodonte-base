@@ -18,7 +18,7 @@
 - [x] Fixed unchecked cast warning in `Component.ref()`
 
 ## Pendências
-- [ ] Evoluir o live reload para mudanças estruturais sem reinício; exige estratégia explícita de migração/indireção ou JVM compatível, não cópia de memória.
+- [ ] Evoluir o live reload para mudanças estruturais sem reinício; preservar as mesmas janelas nativas é requisito. Avaliar host permanente de Stage/Scene com gerações isoladas do código, contrato explícito de migração de estado e descarte de tarefas/callbacks antigos; proposta ainda não implementada em [LIVE_RELOAD.md](LIVE_RELOAD.md).
 - [ ] Avaliar dependências novas em processo vivo, com isolamento, conflito de classes e reversão; atualmente qualquer mudança exige reinício.
 - [ ] Integrar caches JSONC, builds multimódulo e janelas customizadas ao live reload.
 - [ ] Preservar estado efêmero dos controles (foco, cursor, rolagem) e rastrear recursos/assinaturas criados fora do render síncrono.
