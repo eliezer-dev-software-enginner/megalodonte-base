@@ -9,3 +9,4 @@
 - Added Javadoc documentation to all project classes and relevant methods
 - Translated remaining Portuguese comments to English (Animations.java, Context.java, KeyBind.java)
 - Hospedeiro nativo por mensageria: diagnóstico e primeira etapa experimental em [NATIVE_MESSAGING.md](NATIVE_MESSAGING.md). Primeira etapa validada ao final (10 testes unitários e integração com duas janelas), publicada no Maven Local. Ainda sem integração transparente com aplicações existentes.
+- CLI experimental: `megalodonte dev --native-host --worker-main ...` validado com inclusão/remoção de classe e campo novo, mantendo PID do hospedeiro e identidade de duas janelas. Exige API NativeWorker; o modo padrão não mudou.

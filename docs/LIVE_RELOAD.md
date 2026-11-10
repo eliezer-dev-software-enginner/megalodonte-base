@@ -19,12 +19,12 @@ not enable the agent or the file watcher.
 
 ## What the isolated world does
 
-### Proposed fallback: persistent window host (not implemented)
+### Persistent window host: design evolution
 
 Keeping the same native windows open is a user requirement even when ordinary
 class redefinition fails. Automatic process restart does not satisfy it.
 
-A possible fallback is a permanent host owning JavaFX, the Stage/Scene registry
+The initial alternative considered a permanent host owning JavaFX, the Stage/Scene registry
 and a stable framework bridge, with application code loaded as replaceable
 generations. Compatible changes keep the existing redefine path. Structural
 changes prepare a new generation in an isolated class loader, reconstruct the
@@ -47,8 +47,10 @@ and a crashed JVM, remain outside this fallback. A separate worker process
 could isolate application crashes only with an additional declarative UI/event
 protocol; JavaFX Node objects cannot be transferred between processes.
 
-This is an architectural proposal, not an implemented feature or a guarantee
-that all current application code already supports generation replacement.
+The class-loader alternative above was not implemented. The chosen follow-up is
+a separate worker-process prototype with internal JSON messaging, now available
+through an explicit Java API and opt-in CLI mode. See [native messaging status](NATIVE_MESSAGING.md).
+Existing application screens do not automatically support generation replacement.
 
 ### Current implementation
 

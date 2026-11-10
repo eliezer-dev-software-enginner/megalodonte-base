@@ -1,6 +1,7 @@
 # TODO
 
 ## Concluído
+- [x] Supervisão experimental pelo CLI, com builds isolados e troca de workers após mudanças estruturais; validada em consumidor descartável, preservando duas janelas.
 - [x] Primeira etapa experimental de mensageria nativa: protocolo, hospedeiro permanente, workers substituíveis, identidade de duas janelas validada e publicação local.
 - [x] Live reload de métodos compatíveis em múltiplas janelas, agente opt-in, cópia ativa isolada, rollback de render e descarte de assinaturas síncronas. Teste em JVM real e consumidor temporário pelo CLI.
 - [x] Simplificação do Theme:

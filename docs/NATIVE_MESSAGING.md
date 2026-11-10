@@ -53,14 +53,14 @@ effects. Initial workers must avoid effects until they become active; production
 - [ ] Add business-state checkpoint/migration, effect quiescence and activation.
 - [ ] Preserve focus, cursor, scroll, selection, owner/modality and custom windows.
 - [ ] Add component coverage, themes, images/assets and capability negotiation.
-- [ ] Integrate an opt-in CLI mode, compilation and generation supervision.
+- [x] Integrate an opt-in CLI mode, compilation and generation supervision.
 - [ ] Test real applications before claiming transparent support for Minastex.
 
 ## Progress
 
 - Diagnosis recorded and committed before implementation.
 - Protocol, typed Java API, subprocess host and integration fixtures written.
-  Intermediate source commit: not yet compiled or tested, per the batching plan.
+  Intermediate source commit was explicitly unvalidated; final results are recorded below.
 - The standalone launcher accepts a worker executable and arguments; its prototype
   session ends when any window is closed. Existing application entry points are
   not converted automatically. The host API supports replacing a worker later.
@@ -104,8 +104,8 @@ recover it. Candidate failure leaves the previous worker active.
 
 The first renderer reconstructs roots, so it does not preserve control instances,
 focus, cursor or scroll. It preserves user-edited text through stable IDs. This is
-not a remote wrapper around every existing Megalodonte component. There is no CLI
-watcher integration yet. This stage does not claim compatibility with Minastex.
+not a remote wrapper around every existing Megalodonte component. CLI watcher
+integration is opt-in and requires this worker API. No transparent Minastex support is claimed.
 
 Final validation commands: `./gradlew test nativeMessagingTest publishToMavenLocal`.
 `nativeMessagingTest` requires a real display and launches worker JVMs; it checks
@@ -124,10 +124,10 @@ EVENT successfully. No screenshots or unrelated application tests were run.
 
 The first attempt was blocked by an obsolete Gradle daemon's JDK spawn helper;
 validation succeeded with `--no-daemon`. This was an environment issue, not a
-passing test. Next stage: opt-in CLI compilation and host supervision, with its
-tests likewise deferred until the stage is implemented.
+passing test. The next stage added opt-in CLI compilation and host supervision;
+its tests were likewise deferred until that stage was implemented.
 
-## CLI supervision stage (implementation written; validation pending)
+## CLI supervision stage (validated experimental API)
 
 The opt-in CLI command is:
 
@@ -156,3 +156,17 @@ The new integration fixture edits a disposable Java worker, adds/removes a class
 and adds a field, checks worker PID replacement and identical host/Stage/Scene,
 then checks compile errors, invalid candidates and recovery. Tests for this stage
 are deferred to its final validation, following the user-requested cadence.
+
+### Final validation of CLI supervision
+
+Passed 17 CLI unit tests, 10 base unit tests and the two-window host integration
+(no skipped tests). Updated base artifacts were published to Maven Local before
+running `PYTHONPATH=src python tests/integration_native_host.py` against a
+disposable consumer. It passed: adding/removing a Java class and adding a field
+changed the worker PID while preserving the host PID and both Stage/Scene
+identities. Compilation failure and an invalid candidate were rejected, then a
+valid generation recovered on the same windows. Shutdown completed successfully.
+
+These are prototype/consumer validations, not validation of existing Minastex
+component adapters. The next implementation work is component integration and
+state migration, not enabling this mode automatically in existing applications.
