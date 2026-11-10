@@ -8,4 +8,4 @@
 - README agora documenta o tratamento centralizado de exceções com `ErrorReporter.register(...)`, incluindo registro em log, retorno seguro à thread de UI para alertas e encaminhamento manual por `ErrorReporter.handle(...)`.
 - Added Javadoc documentation to all project classes and relevant methods
 - Translated remaining Portuguese comments to English (Animations.java, Context.java, KeyBind.java)
-- Hospedeiro nativo por mensageria: diagnóstico e primeira etapa experimental em [NATIVE_MESSAGING.md](NATIVE_MESSAGING.md). Testes concentrados no final por solicitação do usuário; ainda sem integração transparente com aplicações existentes.
+- Hospedeiro nativo por mensageria: diagnóstico e primeira etapa experimental em [NATIVE_MESSAGING.md](NATIVE_MESSAGING.md). Primeira etapa validada ao final (10 testes unitários e integração com duas janelas), publicada no Maven Local. Ainda sem integração transparente com aplicações existentes.

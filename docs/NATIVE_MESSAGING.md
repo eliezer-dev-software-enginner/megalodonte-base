@@ -44,12 +44,11 @@ if preparation fails. Only after committing the candidate retire the old worker.
 Input values are carried across generations by stable window/component IDs.
 Arbitrary business state, in-flight operations, scroll/focus, effects and resources
 are NOT automatically migrated. Worker termination does not undo database/network
-effects. Initial workers must avoid effects until they become active; future
-production integration needs an explicit activation and quiescence contract.
+effects. Initial workers must avoid effects until they become active; production integration still needs business-state checkpointing and background-effect quiescence; the prototype already gates activation and waits for UI-event acknowledgments.
 
 ## Roadmap
 
-- [ ] Implement and finally validate protocol, host, worker and two-window test.
+- [x] Implement and finally validate protocol, host, worker and two-window test.
 - [ ] Integrate native component factories and event callbacks with stable identities.
 - [ ] Add business-state checkpoint/migration, effect quiescence and activation.
 - [ ] Preserve focus, cursor, scroll, selection, owner/modality and custom windows.
@@ -113,3 +112,17 @@ Final validation commands: `./gradlew test nativeMessagingTest publishToMavenLoc
 two Stage/Scene identities, typed input, button routing, invalid candidates,
 missing windows, malformed protocol, timeout, worker death and recovery.
 
+
+### Final validation of the first stage
+
+Passed 10 unit tests and the display-dependent integration test (no skipped tests),
+covering two unchanged Stage/Scene identities across worker replacement, invalid
+candidates, missing windows, malformed messages, timeout and recovery after worker
+exit. `publishToMavenLocal` succeeded. A temporary standalone consumer compiled
+the documented Java worker against the published JAR and handled HELLO/ACTIVATE/
+EVENT successfully. No screenshots or unrelated application tests were run.
+
+The first attempt was blocked by an obsolete Gradle daemon's JDK spawn helper;
+validation succeeded with `--no-daemon`. This was an environment issue, not a
+passing test. Next stage: opt-in CLI compilation and host supervision, with its
+tests likewise deferred until the stage is implemented.
