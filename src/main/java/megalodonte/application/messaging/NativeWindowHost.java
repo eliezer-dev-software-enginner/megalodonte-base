@@ -46,8 +46,8 @@ public final class NativeWindowHost implements AutoCloseable {
     private final Map<String, Map<String, String>> inputs = new LinkedHashMap<>();
     private final Consumer<Throwable> errors;
     private final long timeoutMillis;
-    private Worker active;
-    private Worker candidate;
+    private volatile Worker active;
+    private volatile Worker candidate;
     private long generation;
     private boolean closed;
 
@@ -59,11 +59,18 @@ public final class NativeWindowHost implements AutoCloseable {
     }
     /** Retains window identities. Rejects replacement until outstanding UI events finish. */
     public CompletableFuture<Long> replaceWorker(List<String> command) {
+        return replaceWorker(command, null, Map.of());
+    }
+    public CompletableFuture<Long> replaceWorker(List<String> command, java.nio.file.Path directory,
+                                                  Map<String, String> environment) {
         requireFx();
         if (closed || candidate != null || (active != null && active.inFlight != 0))
             return CompletableFuture.failedFuture(new IllegalStateException("Host closed, replacing, or processing events"));
         try {
-            Process process = new ProcessBuilder(List.copyOf(command)).redirectError(ProcessBuilder.Redirect.INHERIT).start();
+            var builder = new ProcessBuilder(List.copyOf(command)).redirectError(ProcessBuilder.Redirect.INHERIT);
+            if (directory != null) builder.directory(directory.toFile());
+            builder.environment().putAll(environment);
+            Process process = builder.start();
             Worker next = new Worker(++generation, process);
             candidate = next;
             interactive(false);
@@ -91,6 +98,7 @@ public final class NativeWindowHost implements AutoCloseable {
     /** Read-only registry for host integrations; returned Stages remain host-owned. */
     public Map<String, Stage> windows() { requireFx(); return Map.copyOf(windows); }
     public long activeGeneration() { requireFx(); return active == null ? 0 : active.generation; }
+    public long activeWorkerPid() { requireFx(); return active == null ? 0 : active.process.pid(); }
     public boolean readyForReplacement() {
         requireFx(); return !closed && candidate == null && (active == null || active.inFlight == 0);
     }
@@ -229,6 +237,12 @@ public final class NativeWindowHost implements AutoCloseable {
     }
     private static void requireFx() {
         if (!Platform.isFxApplicationThread()) throw new IllegalStateException("Native host requires the FX thread");
+    }
+    /** Shutdown-hook cleanup cannot rely on a responsive FX thread. */
+    void terminateWorkers() {
+        Worker first = candidate, second = active;
+        if (first != null) first.process.destroyForcibly();
+        if (second != null) second.process.destroyForcibly();
     }
     @Override public void close() {
         requireFx(); closed = true;

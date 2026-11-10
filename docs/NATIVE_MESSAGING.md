@@ -126,3 +126,33 @@ The first attempt was blocked by an obsolete Gradle daemon's JDK spawn helper;
 validation succeeded with `--no-daemon`. This was an environment issue, not a
 passing test. Next stage: opt-in CLI compilation and host supervision, with its
 tests likewise deferred until the stage is implemented.
+
+## CLI supervision stage (implementation written; validation pending)
+
+The opt-in CLI command is:
+
+```sh
+megalodonte dev --native-host --worker-main your.package.WorkerMain
+```
+
+This entry class must implement the NativeWorker protocol above; passing an
+existing ordinary application Main does not convert it. The CLI compiles app
+classes in the temporary world, freezes each worker generation and its JARs,
+and sends REPLACE to a permanent NativeHostSupervisor JVM. It never automatically
+restarts the host. Stage/Scene identity diagnostics accompany accepted responses.
+
+Worker-only dependencies can change between generations. Host dependencies
+(base/core/Gson/SLF4J/JavaFX), Java executable and JVM arguments are pinned; a
+change is rejected with the existing windows retained. Worker cwd, environment
+and application arguments are forwarded explicitly. Stdout is protocol in both
+channels; logs remain on stderr. Closing a window ends this prototype session.
+
+Old generation files remain until session shutdown to avoid deleting bytecode
+while a retired worker is still exiting; long sessions consume additional disk
+space. Ctrl+C closes the host, which terminates workers through normal cleanup
+and a shutdown hook. Native host crash/forced OS kill is outside window retention.
+
+The new integration fixture edits a disposable Java worker, adds/removes a class
+and adds a field, checks worker PID replacement and identical host/Stage/Scene,
+then checks compile errors, invalid candidates and recovery. Tests for this stage
+are deferred to its final validation, following the user-requested cadence.
