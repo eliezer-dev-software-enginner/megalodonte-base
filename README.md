@@ -32,7 +32,11 @@ while keeping screen instances and their state. Failed builds leave the app
 running. Structural edits and dependency changes require restart; use
 `--restart-on-incompatible` only when losing in-memory state is acceptable.
 Read [the live reload guide](docs/LIVE_RELOAD.md) for supported projects, lifecycle,
-subscription cleanup, rollback boundaries and validation commands.
+subscription cleanup, rollback boundaries and validation commands. The
+[compilation-world protocol](docs/COMPILATION_WORLD.md) explains project/token
+deltas, content-addressed resources, compact responses and `.env` restarts.
+
+![Incremental live reload architecture](docs/images/live-reload.svg)
 
 ---
 

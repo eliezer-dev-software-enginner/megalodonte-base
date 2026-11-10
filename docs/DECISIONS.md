@@ -108,3 +108,11 @@ que a aplicação cliente chamasse `Font.loadFont(...)` arquivo por arquivo, no 
 ## Hospedeiro nativo permanente por mensageria
 
 Adotar processo hospedeiro para janelas e workers Java substituíveis, com JSON apenas como protocolo interno. Não depende da construção de UI JSONC. Primeira etapa e validação ao final documentadas em [NATIVE_MESSAGING.md](NATIVE_MESSAGING.md).
+# Compilation-world protocol (2026-11-10)
+
+1. Place JSON messaging between the project and isolated compiler world, independent of application domain.
+2. Send a complete metadata manifest once, then deltas; store content locally by SHA-256 instead of embedding binaries in JSON.
+3. Return status, diagnostics and artifact hashes rather than retransmitting the application.
+4. Use token/symbol metadata for detection and dependency insight, while respecting javac/class-file granularity.
+5. Treat resource files as binary inputs and `.env` as hash-only restart-sensitive configuration.
+6. Do not generate an application-specific WorkerMain until a generic structural activation contract is proven.

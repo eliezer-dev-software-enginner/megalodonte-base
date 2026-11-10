@@ -19,6 +19,11 @@ not enable the agent or the file watcher.
 
 ## What the isolated world does
 
+The project-to-world messaging model, token/file/class granularities, resources
+and `.env` policy are specified in [COMPILATION_WORLD.md](COMPILATION_WORLD.md).
+JSON describes a content-addressed project snapshot and subsequent deltas; it is
+not a serialized UI or application object graph.
+
 ### Persistent window host: design evolution
 
 Keeping the same native windows open is a user requirement even when ordinary
@@ -55,8 +60,10 @@ Existing application screens do not automatically support generation replacement
 ### Current implementation
 
 1. The CLI watches source/resource directories and Gradle configuration, caches file
-   hashes, and waits for a quiet interval (`--debounce`, default 0.6 seconds).
-2. Gradle compiles to a private temporary build directory using its incremental
+   hashes, and waits for a quiet interval (`--debounce`, default 0.6 seconds). It
+   records an initial JSON project manifest and later JSON deltas with Java token
+   and symbol metadata. Contents use a local hash-addressed blob store.
+2. Gradle compiles mirrored sources/resources to a private temporary build directory using its incremental
    compiler and daemon. It does not run `clean`, tests, packaging or application
    startup on every edit. The project's normal `build/` is not used.
 3. A successful generation freezes class/resource output. The running JVM reads a
@@ -79,6 +86,10 @@ There are no network listeners or runtime agent attachment requirements.
 The “world” is an artifact staging area, **not a security sandbox or a second JVM
 whose memory can be copied into the client**. Build scripts and application code
 still have their normal permissions and side effects.
+
+The compiler response carries status and artifact metadata, not the entire project
+again. `.env` contents never enter the mirror/protocol; a changed environment file
+requires restart. Resources are mirrored as binary blobs and processed normally.
 
 ## State and failure recovery
 

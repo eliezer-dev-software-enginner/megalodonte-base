@@ -25,3 +25,11 @@
 - [ ] Integrar caches JSONC, builds multimódulo e janelas customizadas ao live reload.
 - [ ] Preservar estado efêmero dos controles (foco, cursor, rolagem) e rastrear recursos/assinaturas criados fora do render síncrono.
 - Revisar componentes que usam `ThemeInterface` para garantir que `applyTheme` funciona com o novo `ThemeBorder` (radius agora está em `border().radiusMd()` em vez de `radius().md()`)
+# Incremental compilation world
+
+- [x] Define initial project manifest and subsequent delta protocol.
+- [x] Define content-addressed handling for Java and resources without Base64 JSON payloads.
+- [x] Define `.env` as restart-sensitive metadata with no secret contents in protocol files.
+- [ ] Add compiler diagnostics and affected dependency units to the response.
+- [ ] Prove structural generation activation while retaining native windows before generating WorkerMain for all projects.
+- [ ] Add stable resource-cache invalidation contracts to the runtime.
