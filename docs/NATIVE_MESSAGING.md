@@ -59,4 +59,57 @@ production integration needs an explicit activation and quiescence contract.
 
 ## Progress
 
-- Diagnosis recorded; implementation starting. No tests run for this stage yet.
+- Diagnosis recorded and committed before implementation.
+- Protocol, typed Java API, subprocess host and integration fixtures written.
+  Intermediate source commit: not yet compiled or tested, per the batching plan.
+- The standalone launcher accepts a worker executable and arguments; its prototype
+  session ends when any window is closed. Existing application entry points are
+  not converted automatically. The host API supports replacing a worker later.
+
+## Experimental API
+
+`NativeUi` provides Java records and builders. `NativeWorker.Application.prepare`
+returns a complete snapshot; `onEvent` returns another snapshot or null for ACK.
+`activated` is called only after the host accepts the initial snapshot. Application
+logs go to stderr. Workers must not print ordinary logs to stdout.
+
+```java
+import megalodonte.application.messaging.NativeWorker;
+import megalodonte.application.messaging.NativeUi.*;
+import static megalodonte.application.messaging.NativeUi.*;
+import java.util.List;
+
+class WorkerMain {
+    static void main() throws Exception {
+        NativeWorker.run(new NativeWorker.Application() {
+            int clicks;
+            public Snapshot prepare(State state) { return screen(); }
+            public Snapshot onEvent(Event event) { clicks++; return screen(); }
+            private Snapshot screen() {
+                return new Snapshot(List.of(new Window("main", "Demo", 400, 240,
+                    column("root", text("count", "Clicks: " + clicks),
+                        button("increment", "Increment")))));
+            }
+        });
+    }
+}
+```
+
+A host integration calls `NativeWindowHost.replaceWorker(command)` on the FX
+thread and observes its future. It retains all existing Stage and Scene instances
+when accepting another worker. `readyForReplacement()` reports whether all sent
+UI events were acknowledged; replacement is rejected while events are pending.
+Initial snapshots cannot silently remove open windows. A disconnected active
+worker leaves the last UI visible but disabled; a subsequent replacement can
+recover it. Candidate failure leaves the previous worker active.
+
+The first renderer reconstructs roots, so it does not preserve control instances,
+focus, cursor or scroll. It preserves user-edited text through stable IDs. This is
+not a remote wrapper around every existing Megalodonte component. There is no CLI
+watcher integration yet. This stage does not claim compatibility with Minastex.
+
+Final validation commands: `./gradlew test nativeMessagingTest publishToMavenLocal`.
+`nativeMessagingTest` requires a real display and launches worker JVMs; it checks
+two Stage/Scene identities, typed input, button routing, invalid candidates,
+missing windows, malformed protocol, timeout, worker death and recovery.
+

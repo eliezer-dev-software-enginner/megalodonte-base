@@ -32,6 +32,7 @@ javafx {
 }
 
 dependencies {
+    implementation("com.google.code.gson:gson:2.11.0")
     api("megalodonte:megalodonte-core:1.0.0-beta")
     // Megalodonte ecosystem
     // (megalodonte-reactivity é adicionado em runtime via reflexão)
@@ -59,6 +60,16 @@ tasks.test {
     useJUnitPlatform()
     // Display-dependent agent test runs explicitly through liveReloadTest.
     exclude("**/ReloadIntegrationTest.class")
+    exclude("**/NativeMessagingIntegrationTest.class")
+}
+
+tasks.register<Test>("nativeMessagingTest") {
+    description = "Validate persistent native windows across worker replacement (requires a display)"
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    useJUnitPlatform()
+    include("**/NativeMessagingIntegrationTest.class")
+    systemProperty("messaging.test.classpath", sourceSets.test.get().runtimeClasspath.asPath)
 }
 
 tasks.register<Test>("liveReloadTest") {

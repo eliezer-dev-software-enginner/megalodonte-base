@@ -7,6 +7,9 @@ module megalodonte.base {
     requires transitive javafx.controls;
 
     requires org.slf4j;
+    requires com.google.gson;
+    exports megalodonte.application.messaging;
+    opens megalodonte.application.messaging to com.google.gson;
 
     exports megalodonte.application;
     exports megalodonte.application.reload;

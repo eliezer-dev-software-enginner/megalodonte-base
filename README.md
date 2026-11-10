@@ -36,6 +36,14 @@ subscription cleanup, rollback boundaries and validation commands.
 
 ---
 
+## Experimental persistent native host
+
+A separate messaging prototype keeps native windows in a permanent JavaFX host
+while replacing Java worker processes. It uses an internal JSON protocol, not
+JSONC authoring. It currently requires an explicit Java prototype API and does
+not transparently support existing applications or `megalodonte dev`.
+See [design, API and validation status](docs/NATIVE_MESSAGING.md).
+
 ## Installation (Maven Local)
 
 Use JDK 25. The included Gradle wrapper downloads Gradle 9.2.0. Publish the
