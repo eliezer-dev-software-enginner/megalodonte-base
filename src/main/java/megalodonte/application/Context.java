@@ -75,10 +75,12 @@ public final class Context {
     public void useView(ScreenComponent component, double sceneWidth, double sceneHeight) {
         if (!Double.isFinite(sceneWidth) || !Double.isFinite(sceneHeight) || sceneWidth <= 0 || sceneHeight <= 0)
             throw new IllegalArgumentException("Scene dimensions must be finite and positive");
-       var parentLayout = (Parent) component.render().getJavaFxNode();
+       var parentLayout = (Parent) megalodonte.application.reload.LiveReload.render(component).getJavaFxNode();
         var scene = new Scene(parentLayout, sceneWidth, sceneHeight);
         ThemeManager.applyFontFamily(scene);
         stage.setScene(scene);
+
+        megalodonte.application.reload.LiveReload.track(stage, component, parentLayout);
 
         // Runs after Bootstrap's stage.show(). onMount executes with the stage already
         // visible and the Scene already attached.
@@ -112,8 +114,9 @@ public final class Context {
             useView(component);
             return;
         }
-        var parentLayout = (Parent) component.render().getJavaFxNode();
+        var parentLayout = (Parent) megalodonte.application.reload.LiveReload.render(component).getJavaFxNode();
         scene.setRoot(parentLayout);
+        megalodonte.application.reload.LiveReload.track(stage, component, parentLayout);
     }
 
     /** Centers once after initial layout without reacting inside native resize events. */
@@ -156,6 +159,7 @@ public final class Context {
      */
     @Deprecated(forRemoval = true)
     public void useView(ComponentInterface<?> component) {
+        megalodonte.application.reload.LiveReload.untrack(stage);
         var scene = new Scene((Parent) component.getJavaFxNode(), width, height);
         ThemeManager.applyFontFamily(scene);
         stage.setScene(scene);

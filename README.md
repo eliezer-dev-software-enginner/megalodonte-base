@@ -16,6 +16,23 @@ scale and font adapters. Consumers built against earlier module layouts need rec
 - **Async Utilities** - Easy async operations
 - **Scope** - Lifecycle-bound cancellation for async work
 - **Bootstrap Lifecycle** - Clean application startup
+- **Development live reload** - Incremental shadow builds and in-place updates across managed desktop windows
+
+## Live reload during development
+
+With the updated Megalodonte CLI, core and base installed, run from a native
+desktop project:
+
+```sh
+megalodonte dev --project .
+```
+
+Compatible method edits update the running JVM and rerender registered windows
+while keeping screen instances and their state. Failed builds leave the app
+running. Structural edits and dependency changes require restart; use
+`--restart-on-incompatible` only when losing in-memory state is acceptable.
+Read [the live reload guide](docs/LIVE_RELOAD.md) for supported projects, lifecycle,
+subscription cleanup, rollback boundaries and validation commands.
 
 ---
 

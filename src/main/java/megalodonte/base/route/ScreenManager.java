@@ -45,6 +45,7 @@ public final class ScreenManager {
      * @return the mounted view and its route props
      */
     public RouteResult mount(Stage stage, Route route, Map<String, String> params, RouterBase router) {
+        megalodonte.application.reload.LiveReload.untrack(stage);
         ActiveScreen previous = activeScreens.remove(stage);
         if (previous != null) {
             log.debug("Destroying previous screen on stage");
@@ -68,6 +69,7 @@ public final class ScreenManager {
         activeScreens.put(stage, new ActiveScreen(screen, ctx));
 
         ComponentInterface<?> view = extractView(screen);
+        megalodonte.application.reload.LiveReload.track(stage, screen, (javafx.scene.Parent) view.getJavaFxNode());
         log.debug("Calling onMount() for route '{}'", route.identification());
         screen.onMount();
         return new RouteResult(view, route.props());
@@ -83,6 +85,7 @@ public final class ScreenManager {
      * Does not close the stage (used when the user closes the window).
      */
     public void destroy(Stage stage) {
+        megalodonte.application.reload.LiveReload.untrack(stage);
         spawnedWindows.removeIf(w -> w == stage);
         ActiveScreen active = activeScreens.remove(stage);
         if (active != null) {
@@ -108,8 +111,13 @@ public final class ScreenManager {
         }
 
         try {
-            var method = screen.getClass().getMethod("render");
-            Object result = method.invoke(screen);
+            Object result;
+            if (screen instanceof ScreenComponent component) {
+                result = megalodonte.application.reload.LiveReload.render(component);
+            } else {
+                var method = screen.getClass().getMethod("render");
+                result = method.invoke(screen);
+            }
 
             if (!(result instanceof ComponentInterface<?> component)) {
                 var e = new IllegalStateException(

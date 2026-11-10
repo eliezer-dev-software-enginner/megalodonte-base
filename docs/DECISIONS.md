@@ -1,5 +1,25 @@
 # Decisões Arquiteturais
 
+## 2026-11-09 — Mundo de compilação separado e live reload desktop
+
+O “mundo virtual” foi implementado como área temporária de build e gerações de
+artefatos. Copiar memória de outra JVM não preservaria identidade, referências ou
+invariantes do coletor; usamos Instrumentation oficial para redefinir classes
+compatíveis, sem substituir class loaders. O CLI conserva runtime e dependências
+em cópias próprias; Gradle continua responsável por compilação incremental.
+
+Todas as telas visíveis gerenciadas preparam suas novas raízes no mesmo turno FX.
+Somente após todas renderizarem ocorre a troca. A instância da tela e seus campos
+permanecem; não reiniciamos o ciclo de montagem nem presumimos migração automática
+de objetos. `SubscriptionScope` identifica assinaturas síncronas do render, para
+descartar raízes anteriores ou candidatas rejeitadas sem apagar o estado.
+
+Alterações estruturais recusadas pela JVM, inclusão/remoção de classes e mudanças
+de dependências exigem reinício, por padrão explícito. `--restart-on-incompatible`
+autoriza reinício com perda de estado. Não há promessa de rollback de efeitos de
+domínio ou de threads em execução. A documentação pública registra esses limites
+e a necessidade de atualizar core/base/reactivity nos consumidores locais.
+
 ## 2026-11-09 — Documentar o tratamento centralizado de exceções
 
 **Problema**: `ErrorReporter` já centralizava falhas de `Async.Run`, `Scope` e operações de tela, mas o README não mostrava ao aplicativo cliente como registrar sua própria política de tratamento.

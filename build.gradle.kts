@@ -57,6 +57,19 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    // Display-dependent agent test runs explicitly through liveReloadTest.
+    exclude("**/ReloadIntegrationTest.class")
+}
+
+tasks.register<Test>("liveReloadTest") {
+    description = "Exercise real JVM redefinition and two JavaFX windows (requires a display)"
+    testClassesDirs = sourceSets.test.get().output.classesDirs
+    classpath = sourceSets.test.get().runtimeClasspath
+    useJUnitPlatform()
+    include("**/ReloadIntegrationTest.class")
+    dependsOn(tasks.jar)
+    systemProperty("reload.test.classpath", sourceSets.test.get().runtimeClasspath.asPath)
+    systemProperty("reload.test.agent", tasks.jar.get().archiveFile.get().asFile.absolutePath)
 }
 
 tasks.javadoc {
@@ -71,7 +84,9 @@ tasks.jar {
     manifest {
         attributes(
             "Implementation-Title" to "Megalodonte Base Library",
-            "Implementation-Version" to project.version
+            "Implementation-Version" to project.version,
+            "Premain-Class" to "megalodonte.application.reload.ReloadAgent",
+            "Can-Redefine-Classes" to "true"
         )
     }
 }
