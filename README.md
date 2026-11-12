@@ -29,8 +29,9 @@ megalodonte dev --project .
 
 Compatible method edits update the running JVM and rerender registered windows
 while keeping screen instances and their state. Failed builds leave the app
-running. Structural edits and dependency changes require restart; use
-`--restart-on-incompatible` only when losing in-memory state is acceptable.
+running. Structural edits and dependency changes automatically restart the
+application child, recreating windows and losing in-memory state. Use
+`--no-restart-on-incompatible` to keep the previous generation active instead.
 Read [the live reload guide](docs/LIVE_RELOAD.md) for supported projects, lifecycle,
 subscription cleanup, rollback boundaries and validation commands. The
 [compilation-world protocol](docs/COMPILATION_WORLD.md) explains project/token

@@ -124,26 +124,27 @@ old bytecode. This mechanism is not a transaction over the whole application.
 | Method bodies with unchanged class structure | Redefined in the existing JVM; all registered visible windows rerender |
 | Resources read again during render | Updated in the active copy before rerender; cached images/fonts/static data may still need restart |
 | Compile error or failed render | Existing version kept; failed render rolls back bytecode/resources |
-| Added/deleted class files | Restart required, including anonymous-class changes |
-| New/removed fields or methods, changed signatures/inheritance | JVM may reject; restart required on the standard JVM |
-| Added, removed, upgraded or reordered external dependencies | Resolved in the shadow build, then restart required; never appended silently to the live class loader |
-| Constructor, static initializer, bootstrap or route-table setup changes | Existing objects are not reinitialized; restart to observe initialization changes |
+| Added/deleted class files | Application child restarts automatically, including anonymous-class changes |
+| New/removed fields or methods, changed signatures/inheritance | Application child restarts automatically after the standard JVM rejects in-place redefinition |
+| Added, removed, upgraded or reordered external dependencies | Resolved in the shadow build, then applied by automatic child restart; never appended silently to the live class loader |
+| Constructor, static initializer, bootstrap or route-table setup changes | Automatic child restart recreates the application and observes initialization changes |
 
 Adding a lambda can add a synthetic method or class, so even a small source edit
 can require restart. Compilation granularity is Gradle's dependency analysis,
 not arbitrary Java statements. Changed JARs at the same path are detected by
 content when preparing another generation.
 
-By default an incompatible change leaves the current process untouched. Stop and
-start `megalodonte dev` to adopt it. To explicitly permit restarts:
+By default an incompatible successful generation restarts the application child,
+so structural component changes become visible without stopping the development
+session. To retain the previous generation instead:
 
 ```sh
-megalodonte dev --project . --restart-on-incompatible
+megalodonte dev --project . --no-restart-on-incompatible
 ```
 
-This option loses in-memory state, recreates windows from application startup and
-uses process termination (not the application's window-close handler). Persist
-work before opting in. There is no automatic arbitrary-object migration.
+The default fallback loses in-memory state, recreates windows from application
+startup and uses process termination (not the application's window-close handler).
+Persist work before structural edits. There is no automatic arbitrary-object migration.
 
 Current launch support is single-project, non-modular native desktop applications
 using the standard Gradle `application` launch configuration. JavaFX modules use
