@@ -39,6 +39,7 @@ public final class ReloadAgent {
         if (!instrumentation.isRedefineClassesSupported())
             throw new IllegalStateException("This JVM does not support class redefinition");
         Path session = Path.of(directory).toRealPath();
+        ReloadConsole.install();
         System.setProperty(RestartWindowState.SESSION_PROPERTY, session.toString());
         Path runtime = session.resolve("active").toRealPath();
         Map<String, byte[]> initial = readTree(runtime);
@@ -76,12 +77,12 @@ public final class ReloadAgent {
                 }
                 Files.writeString(session.resolve("response.tmp"), id + "\n" + status);
                 Files.move(session.resolve("response.tmp"), session.resolve("response"), StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("[live-reload] " + id + " " + status.replace('\n', ' '));
+                ReloadConsole.status(id + " " + status.replace('\n', ' '), status.lines().findFirst().orElse(""));
                 if (status.startsWith("FATAL")) return;
             } catch (InterruptedException stopped) {
                 Thread.currentThread().interrupt();
             } catch (Exception failure) {
-                System.err.println("[live-reload] " + describe(failure));
+                ReloadConsole.error(describe(failure));
             }
         }
     }

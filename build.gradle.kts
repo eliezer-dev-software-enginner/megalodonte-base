@@ -33,6 +33,7 @@ javafx {
 
 dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
+    implementation("org.fusesource.jansi:jansi:2.4.2")
     api("megalodonte:megalodonte-core:1.0.0-beta")
     // Megalodonte ecosystem
     // (megalodonte-reactivity é adicionado em runtime via reflexão)

@@ -135,7 +135,7 @@ public final class LiveReload {
     private static void release(Binding binding) {
         if (binding.scope() == null) return;
         try { binding.scope().close(); }
-        catch (RuntimeException error) { System.err.println("[live-reload] Subscription cleanup failed: " + error); }
+        catch (RuntimeException error) { ReloadConsole.error("Subscription cleanup failed: " + error); }
     }
 
     /**

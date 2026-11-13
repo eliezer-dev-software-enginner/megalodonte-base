@@ -86,7 +86,7 @@ final class RestartWindowState {
             String focusedWindow = root.has("focusedWindow") ? root.get("focusedWindow").getAsString() : null;
             return new Snapshot(root.get("applicationFocused").getAsBoolean(), focusedWindow, windows);
         } catch (RuntimeException | IOException invalid) {
-            System.err.println("[live-reload] Ignoring invalid window restart state: " + invalid.getMessage());
+            ReloadConsole.error("Ignoring invalid window restart state: " + invalid.getMessage());
             return null;
         }
     }

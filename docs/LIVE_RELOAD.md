@@ -85,6 +85,12 @@ temporary session. A hung UI cannot acknowledge a refresh: the CLI reports that
 it is waiting instead of timing out and later applying an abandoned transaction.
 There are no network listeners or runtime agent attachment requirements.
 
+Interactive terminals color the live-reload scope and severity: successful
+generations are green, restart/wait states yellow and failures red. The Python
+supervisor uses Rich and the Java agent uses Jansi; normal framework/application
+logging remains on SLF4J. Redirected output stays plain. Set the standard
+`NO_COLOR` environment variable to disable colors explicitly.
+
 The “world” is an artifact staging area, **not a security sandbox or a second JVM
 whose memory can be copied into the client**. Build scripts and application code
 still have their normal permissions and side effects.

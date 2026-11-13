@@ -8,6 +8,7 @@ module megalodonte.base {
 
     requires org.slf4j;
     requires com.google.gson;
+    requires org.fusesource.jansi;
     exports megalodonte.application.messaging;
     opens megalodonte.application.messaging to com.google.gson;
 
