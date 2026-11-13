@@ -46,6 +46,7 @@ public final class Bootstrap {
      */
     public static void dispatch(Class<? extends Application> appClass, Stage stage, String[] args) {
         megalodonte.platform.javafx.JavaFxPlatform.initialize();
+        megalodonte.application.reload.LiveReload.markPrimary(stage);
         log.info("Bootstrap dispatch starting for {}", appClass.getSimpleName());
 
         applyAppIcon(stage);
@@ -79,7 +80,10 @@ public final class Bootstrap {
             log.warn("No application handler registered");
         }
 
-        stage.show();
+        if (megalodonte.application.reload.LiveReload.restoreBeforeShow(stage)) {
+            stage.show();
+            megalodonte.application.reload.LiveReload.restoreFocusAfterShow(stage);
+        }
         log.info("Bootstrap dispatch complete, stage shown");
     }
 

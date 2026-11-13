@@ -142,9 +142,25 @@ session. To retain the previous generation instead:
 megalodonte dev --project . --no-restart-on-incompatible
 ```
 
-The default fallback loses in-memory state, recreates windows from application
-startup and uses process termination (not the application's window-close handler).
-Persist work before structural edits. There is no automatic arbitrary-object migration.
+The default fallback loses in-memory application state, recreates windows from
+application startup and uses process termination (not the application's
+window-close handler). Before terminating the old child, the supervisor asks it
+to persist the framework-managed windows' bounds, maximized/full-screen/iconified
+state, visibility and whether the Megalodonte application owned keyboard focus.
+The new child restores that window state before mapping the stages. When the old
+application was behind another application, the restored stages are sent to the
+back instead of deliberately requesting focus. This avoids turning a source edit
+into an unexpected focus change while preserving the previous screen and bounds.
+
+JavaFX has no portable API for restoring an exact position in the operating
+system's global z-order. The cross-platform contract therefore preserves focus
+intent (foreground or background), not the precise ordering among every external
+window. An exact z-order needs optional native adapters per window system;
+Wayland may reject it by design. A window is restored only if application startup
+creates the corresponding framework-managed stage again, in the same stable
+role/order. This mechanism does not recreate an arbitrary secondary window or
+migrate its domain state. Persist work before structural edits; there is no
+automatic arbitrary-object migration.
 
 Current launch support is single-project, non-modular native desktop applications
 using the standard Gradle `application` launch configuration. JavaFX modules use

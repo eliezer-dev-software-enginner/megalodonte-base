@@ -9,7 +9,9 @@ import megalodonte.base.components.Component;
 import megalodonte.base.state.SubscriptionScope;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -18,12 +20,21 @@ import java.util.concurrent.ExecutionException;
 public final class LiveReload {
     private static final Object KEY = new Object();
     private static final Object CAPTURE = new Object();
+    private static final Object WINDOW_ID = new Object();
     /** FX-thread-owned registry. Weak keys avoid retaining a Stage after its lifecycle ends. */
     private static final WeakHashMap<Stage, Boolean> TRACKED_STAGES = new WeakHashMap<>();
+    private static int secondaryWindowSequence;
+    private static RestartWindowState.Snapshot restartSnapshot;
+    private static boolean restartSnapshotLoaded;
     private record Binding(ScreenComponent screen, Parent root, SubscriptionScope scope) {}
     private record Replacement(Stage stage, Scene scene, Binding old, Binding next) {}
 
     private LiveReload() {}
+
+    /** Give the application stage a stable identity before the startup handler creates its view. */
+    public static void markPrimary(Stage stage) {
+        if (ReloadAgent.isActive()) stage.getProperties().put(WINDOW_ID, "primary");
+    }
 
     /** Render with subscription ownership only in a development-agent session. */
     public static Component render(ScreenComponent screen) {
@@ -43,10 +54,71 @@ public final class LiveReload {
     /** Track only framework-managed, currently rendered screens, on the FX thread. */
     public static void track(Stage stage, ScreenComponent screen, Parent root) {
         if (ReloadAgent.isActive()) {
+            stage.getProperties().computeIfAbsent(WINDOW_ID, ignored -> "window-" + (++secondaryWindowSequence));
             Binding binding = binding(screen, root);
             var previous = stage.getProperties().put(KEY, binding);
             TRACKED_STAGES.put(stage, Boolean.TRUE);
             if (previous instanceof Binding old) release(old);
+        }
+    }
+
+    /** Restore saved bounds and native mode after application code has configured the stage. */
+    public static boolean restoreBeforeShow(Stage stage) {
+        if (!ReloadAgent.isActive()) return true;
+        String id = (String) stage.getProperties().get(WINDOW_ID);
+        RestartWindowState.Snapshot snapshot = restartSnapshot();
+        RestartWindowState.Window window = id == null || snapshot == null ? null : snapshot.windows().get(id);
+        if (window != null) RestartWindowState.restore(stage, window);
+        return window == null || window.showing();
+    }
+
+    /** Preserve foreground/background intent after JavaFX maps the recreated native window. */
+    public static void restoreFocusAfterShow(Stage stage) {
+        if (!ReloadAgent.isActive()) return;
+        String id = (String) stage.getProperties().get(WINDOW_ID);
+        RestartWindowState.Snapshot snapshot = restartSnapshot();
+        if (id == null || snapshot == null || !stage.isShowing()) return;
+        Platform.runLater(() -> {
+            if (!snapshot.applicationFocused()) stage.toBack();
+            else if (id.equals(snapshot.focusedWindow())) stage.requestFocus();
+        });
+    }
+
+    private static RestartWindowState.Snapshot restartSnapshot() {
+        if (!restartSnapshotLoaded) {
+            restartSnapshot = RestartWindowState.read();
+            restartSnapshotLoaded = true;
+        }
+        return restartSnapshot;
+    }
+
+    /** Capture all framework-managed windows on the FX thread before the CLI terminates this child. */
+    static int snapshotForRestart() throws Exception {
+        var result = new CompletableFuture<Integer>();
+        Platform.runLater(() -> {
+            try {
+                Map<String, RestartWindowState.Window> windows = new LinkedHashMap<>();
+                String focused = null;
+                for (Stage stage : List.copyOf(TRACKED_STAGES.keySet())) {
+                    String id = (String) stage.getProperties().get(WINDOW_ID);
+                    if (id == null) continue;
+                    if (stage.isFocused()) focused = id;
+                    windows.put(id, new RestartWindowState.Window(id, stage.getX(), stage.getY(),
+                            stage.getWidth(), stage.getHeight(), stage.isMaximized(), stage.isFullScreen(),
+                            stage.isIconified(), stage.isShowing()));
+                }
+                RestartWindowState.write(new RestartWindowState.Snapshot(focused != null, focused, windows));
+                result.complete(windows.size());
+            } catch (Throwable error) {
+                result.completeExceptionally(error);
+            }
+        });
+        try {
+            return result.get();
+        } catch (ExecutionException error) {
+            if (error.getCause() instanceof Exception exception) throw exception;
+            if (error.getCause() instanceof Error fatal) throw fatal;
+            throw new IllegalStateException(error.getCause());
         }
     }
 

@@ -39,6 +39,7 @@ public final class ReloadAgent {
         if (!instrumentation.isRedefineClassesSupported())
             throw new IllegalStateException("This JVM does not support class redefinition");
         Path session = Path.of(directory).toRealPath();
+        System.setProperty(RestartWindowState.SESSION_PROPERTY, session.toString());
         Path runtime = session.resolve("active").toRealPath();
         Map<String, byte[]> initial = readTree(runtime);
         active = true;
@@ -53,15 +54,19 @@ public final class ReloadAgent {
                 Path request = session.resolve("request");
                 if (!Files.isRegularFile(request)) continue;
                 String id = Files.readString(request).strip();
-                if (id.equals(last) || !id.matches("[0-9]{1,12}")) continue;
+                if (id.equals(last) || !id.matches("(?:snapshot:)?[0-9]{1,20}")) continue;
                 last = id;
                 String status;
                 try {
-                    Path generation = session.resolve("generations").resolve(id).toRealPath();
-                    if (!generation.startsWith(session.resolve("generations"))) throw new IOException("Invalid generation");
-                    Map<String, byte[]> next = readTree(generation);
-                    status = replace(instrumentation, runtime, current, next);
-                    if (status.startsWith("APPLIED")) current = next;
+                    if (id.startsWith("snapshot:")) {
+                        status = "SNAPSHOT\n" + LiveReload.snapshotForRestart() + " windows";
+                    } else {
+                        Path generation = session.resolve("generations").resolve(id).toRealPath();
+                        if (!generation.startsWith(session.resolve("generations"))) throw new IOException("Invalid generation");
+                        Map<String, byte[]> next = readTree(generation);
+                        status = replace(instrumentation, runtime, current, next);
+                        if (status.startsWith("APPLIED")) current = next;
+                    }
                 } catch (RollbackFailure failure) {
                     status = "FATAL\n" + describe(failure);
                 } catch (IncompatibleChange failure) {

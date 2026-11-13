@@ -91,7 +91,10 @@ public class ScreenContextBase implements ScreenContextInterface {
             Bootstrap.applyStageIcon(stage, props.iconPath());
             stage.setResizable(props.screenIsExpandable());
             stage.setScene(scene);
-            stage.show();
+            if (megalodonte.application.reload.LiveReload.restoreBeforeShow(stage)) {
+                stage.show();
+                megalodonte.application.reload.LiveReload.restoreFocusAfterShow(stage);
+            }
 
             screenManager.registerSpawned(stage);
             log.info("Window spawned successfully for route '{}'", path);
